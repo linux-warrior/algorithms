@@ -37,7 +37,7 @@ def get_weather_randomness(temperatures: Iterable[int]) -> int:
 
 
 def main() -> None:
-    temperatures_count = int(input())
+    temperatures_count = int(input().strip())
     temperatures = itertools.islice(
         map(int, sys.stdin.readline().strip().split()),
         temperatures_count,

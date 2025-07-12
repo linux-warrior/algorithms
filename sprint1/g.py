@@ -6,7 +6,7 @@ def to_binary(value: int) -> str:
 
     while value != 0:
         result.append(value & 1)
-        value = value >> 1
+        value >>= 1
 
     if not result:
         result.append(0)

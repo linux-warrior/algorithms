@@ -24,7 +24,7 @@ def get_longest_word(line: str) -> str:
 
 
 def main() -> None:
-    line_len = int(input())
+    line_len = int(input().strip())
     line = input().strip()[:line_len]
 
     longest_word = get_longest_word(line)
