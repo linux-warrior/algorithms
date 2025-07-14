@@ -1,3 +1,5 @@
+# https://contest.yandex.ru/contest/22450/run-report/140129966/
+
 from __future__ import annotations
 
 import itertools
