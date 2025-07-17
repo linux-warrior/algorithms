@@ -12,18 +12,21 @@ class StackMax:
     def __init__(self, items: Iterable[int] | None = None) -> None:
         self.items = list(items or [])
 
+    def __bool__(self) -> bool:
+        return bool(self.items)
+
     def push(self, item: int) -> None:
         self.items.append(item)
 
     def pop(self) -> int:
-        if not self.items:
+        if not self:
             raise ValueError('Stack is empty')
 
         return self.items.pop()
 
-    def get_max(self) -> int:
-        if not self.items:
-            raise ValueError('Stack is empty')
+    def get_max(self) -> int | None:
+        if not self:
+            return None
 
         return max(self.items)
 
@@ -61,10 +64,7 @@ class PopCommand(StackMaxCommand):
 
 class GetMaxCommand(StackMaxCommand):
     def execute(self) -> str:
-        try:
-            return str(self.stack.get_max())
-        except ValueError:
-            return 'None'
+        return str(self.stack.get_max())
 
 
 class StackMaxCommandParser(abc.ABC):
