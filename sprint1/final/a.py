@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22450/run-report/140129966/
+# https://contest.yandex.ru/contest/22450/run-report/140233499/
 
 from __future__ import annotations
 
@@ -45,8 +45,9 @@ def main() -> None:
         map(int, sys.stdin.readline().strip().split()),
         numbers_count,
     ))
-    result = get_distances_to_zero(numbers)
-    print(' '.join(map(str, result)))
+
+    distances_list = get_distances_to_zero(numbers)
+    print(*distances_list)
 
 
 if __name__ == '__main__':

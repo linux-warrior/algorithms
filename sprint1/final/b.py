@@ -1,29 +1,33 @@
-# https://contest.yandex.ru/contest/22450/run-report/140131335/
+# https://contest.yandex.ru/contest/22450/run-report/140237614/
 
 from __future__ import annotations
 
-from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Iterable
 
-type Grid = Sequence[Sequence[int | None]]
+type GridRow = Iterable[int | None]
+type Grid = Iterable[GridRow]
 
 
-def get_max_score(*, grid: Grid, max_keys: int, players_count: int = 2) -> int:
-    counter = Counter[int]()
+def get_max_score(*,
+                  grid: Grid,
+                  min_digit: int = 1,
+                  max_digit: int = 9,
+                  max_keys: int,
+                  players_count: int = 2) -> int:
+    digits_counter = [0] * (max_digit - min_digit + 1)
 
     for grid_row in grid:
         for digit in grid_row:
             if digit is not None:
-                counter[digit] += 1
+                digits_counter[digit - min_digit] += 1
 
-    result = 0
     total_max_keys = max_keys * players_count
+    max_score = sum(
+        int(0 < digit_count <= total_max_keys)
+        for digit_count in digits_counter
+    )
 
-    for digit_count in counter.values():
-        if digit_count <= total_max_keys:
-            result += 1
-
-    return result
+    return max_score
 
 
 def read_int() -> int:
@@ -31,26 +35,20 @@ def read_int() -> int:
 
 
 def read_grid(*, width: int, height: int) -> Grid:
-    grid: list[list[int | None]] = []
-
     for y in range(height):
-        grid_row: list[int | None] = []
-        grid.append(grid_row)
+        yield read_grid_row(width=width)
 
-        for char in input().strip()[:width]:
-            digit: int | None
 
-            try:
-                digit = int(char)
-            except ValueError:
-                digit = None
+def read_grid_row(*, width: int) -> GridRow:
+    for char in input().strip()[:width]:
+        digit: int | None = None
 
-            grid_row.append(digit)
+        try:
+            digit = int(char)
+        except ValueError:
+            pass
 
-        if len(grid_row) < width:
-            grid_row.extend([None] * (width - len(grid_row)))
-
-    return grid
+        yield digit
 
 
 def main() -> None:
