@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22450/run-report/140233499/
+# https://contest.yandex.ru/contest/22450/run-report/140272170/
 
 from __future__ import annotations
 
@@ -9,31 +9,27 @@ from collections.abc import Sequence
 
 def get_distances_to_zero(numbers: Sequence[int]) -> Sequence[int]:
     result: list[int] = []
-    distance = -1
+    distance = len(numbers)
 
     for number in numbers:
         if number == 0:
             distance = 0
-        elif distance >= 0:
+        else:
             distance += 1
 
         result.append(distance)
 
-    distance = -1
+    distance = len(numbers)
 
     for i in range(len(numbers) - 1, -1, -1):
         number = numbers[i]
 
         if number == 0:
             distance = 0
-        elif distance >= 0:
-            distance += 1
         else:
-            continue
+            distance += 1
 
-        previous_distance = result[i]
-
-        if previous_distance < 0 or distance < previous_distance:
+        if distance < result[i]:
             result[i] = distance
 
     return result
