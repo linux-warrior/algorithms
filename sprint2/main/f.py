@@ -12,20 +12,17 @@ class StackMax:
     def __init__(self, items: Iterable[int] | None = None) -> None:
         self.items = list(items or [])
 
-    def __bool__(self) -> bool:
-        return bool(self.items)
-
     def push(self, item: int) -> None:
         self.items.append(item)
 
     def pop(self) -> int:
-        if not self:
+        if not self.items:
             raise ValueError('Stack is empty')
 
         return self.items.pop()
 
     def get_max(self) -> int | None:
-        if not self:
+        if not self.items:
             return None
 
         return max(self.items)
@@ -37,8 +34,8 @@ class StackMaxCommand(abc.ABC):
     def __init__(self, stack: StackMax) -> None:
         self.stack = stack
 
-    def execute(self) -> str | None:
-        return None
+    @abc.abstractmethod
+    def execute(self) -> str | None: ...
 
 
 class PushCommand(StackMaxCommand):
@@ -145,9 +142,10 @@ class StackMaxCommandsExecutor:
 
 
 def main() -> None:
+    commands_count = int(input().strip())
+
     stack = StackMax()
     commands_executor = StackMaxCommandsExecutor(stack)
-    commands_count = int(input().strip())
 
     for i in range(commands_count):
         command_str = input().strip()

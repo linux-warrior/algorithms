@@ -40,7 +40,7 @@ class BracketSequence:
         self.stack.append(bracket_type)
 
     def close_bracket(self, *, bracket_type: BracketType) -> None:
-        if not self:
+        if not self.stack:
             raise BracketsDontMatch
 
         previous_bracket_type = self.stack[-1]

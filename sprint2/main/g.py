@@ -17,9 +17,6 @@ class StackMaxEffective:
         for item in items or []:
             self.push(item)
 
-    def __bool__(self) -> bool:
-        return bool(self.items)
-
     def push(self, item: int) -> None:
         self.items.append(item)
 
@@ -27,7 +24,7 @@ class StackMaxEffective:
             self.max_items.append(item)
 
     def pop(self) -> int:
-        if not self:
+        if not self.items:
             raise ValueError('Stack is empty')
 
         item = self.items.pop()
@@ -37,14 +34,14 @@ class StackMaxEffective:
 
         return item
 
-    def top(self) -> int:
-        if not self:
+    def get_top(self) -> int:
+        if not self.items:
             raise ValueError('Stack is empty')
 
         return self.items[-1]
 
     def get_max(self) -> int | None:
-        if not self:
+        if not self.max_items:
             return None
 
         return self.max_items[-1]
@@ -56,8 +53,8 @@ class StackMaxEffectiveCommand(abc.ABC):
     def __init__(self, stack: StackMaxEffective) -> None:
         self.stack = stack
 
-    def execute(self) -> str | None:
-        return None
+    @abc.abstractmethod
+    def execute(self) -> str | None: ...
 
 
 class PushCommand(StackMaxEffectiveCommand):
@@ -82,9 +79,9 @@ class PopCommand(StackMaxEffectiveCommand):
 
 
 class TopCommand(StackMaxEffectiveCommand):
-    def execute(self) -> str | None:
+    def execute(self) -> str:
         try:
-            item = self.stack.top()
+            item = self.stack.get_top()
         except ValueError:
             return 'error'
 
@@ -185,9 +182,10 @@ class StackMaxEffectiveCommandsExecutor:
 
 
 def main() -> None:
+    commands_count = int(input().strip())
+
     stack = StackMaxEffective()
     commands_executor = StackMaxEffectiveCommandsExecutor(stack)
-    commands_count = int(input().strip())
 
     for i in range(commands_count):
         command_str = input().strip()
