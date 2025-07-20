@@ -75,7 +75,7 @@ class StackMaxCommandParser(abc.ABC):
         self.command_re = re.compile(self.command_pattern)
 
     def parse(self, *, stack: StackMax, command_str: str) -> StackMaxCommand | None:
-        command_match = self.command_re.match(command_str)
+        command_match = self.command_re.fullmatch(command_str)
         if command_match is None:
             return None
 
@@ -89,7 +89,7 @@ class StackMaxCommandParser(abc.ABC):
 
 
 class PushCommandParser(StackMaxCommandParser):
-    command_pattern = r'^push (-?\d+)$'
+    command_pattern = r'push (-?\d+)'
 
     def create_command(self,
                        *,
@@ -99,7 +99,7 @@ class PushCommandParser(StackMaxCommandParser):
 
 
 class PopCommandParser(StackMaxCommandParser):
-    command_pattern = r'^pop$'
+    command_pattern = r'pop'
 
     def create_command(self,
                        *,
@@ -109,7 +109,7 @@ class PopCommandParser(StackMaxCommandParser):
 
 
 class GetMaxCommandParser(StackMaxCommandParser):
-    command_pattern = r'^get_max$'
+    command_pattern = r'get_max'
 
     def create_command(self,
                        *,
