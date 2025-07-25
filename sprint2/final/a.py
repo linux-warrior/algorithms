@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22781/run-report/140351512/
+# https://contest.yandex.ru/contest/22781/run-report/140472573/
 #
 # -- Принцип работы --
 #
@@ -109,8 +109,15 @@ class DequeCommand(abc.ABC):
     def __init__(self, deque: Deque) -> None:
         self.deque = deque
 
+    def execute(self) -> str | None:
+        try:
+            return self._execute_command()
+        except ValueError:
+            return 'error'
+
     @abc.abstractmethod
-    def execute(self) -> str | None: ...
+    def _execute_command(self) -> str | None:
+        ...
 
 
 class PushBackCommand(DequeCommand):
@@ -120,13 +127,8 @@ class PushBackCommand(DequeCommand):
         super().__init__(*args, **kwargs)
         self.item = item
 
-    def execute(self) -> str | None:
-        try:
-            self.deque.push_back(self.item)
-        except ValueError:
-            return 'error'
-
-        return None
+    def _execute_command(self) -> None:
+        self.deque.push_back(self.item)
 
 
 class PushFrontCommand(DequeCommand):
@@ -136,33 +138,18 @@ class PushFrontCommand(DequeCommand):
         super().__init__(*args, **kwargs)
         self.item = item
 
-    def execute(self) -> str | None:
-        try:
-            self.deque.push_front(self.item)
-        except ValueError:
-            return 'error'
-
-        return None
+    def _execute_command(self) -> None:
+        self.deque.push_front(self.item)
 
 
 class PopBackCommand(DequeCommand):
-    def execute(self) -> str:
-        try:
-            item = self.deque.pop_back()
-        except ValueError:
-            return 'error'
-
-        return str(item)
+    def _execute_command(self) -> str:
+        return str(self.deque.pop_back())
 
 
 class PopFrontCommand(DequeCommand):
-    def execute(self) -> str:
-        try:
-            item = self.deque.pop_front()
-        except ValueError:
-            return 'error'
-
-        return str(item)
+    def _execute_command(self) -> str:
+        return str(self.deque.pop_front())
 
 
 class DequeCommandParser(abc.ABC):
