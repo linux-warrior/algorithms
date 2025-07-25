@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22781/run-report/140355388/
+# https://contest.yandex.ru/contest/22781/run-report/140477565/
 #
 # -- Принцип работы --
 #
@@ -88,33 +88,33 @@ class ValueCommand(CalculatorCommand):
 
 class OperationCommand(CalculatorCommand):
     def execute(self) -> None:
-        second_value = self.stack.pop()
-        first_value = self.stack.pop()
-        result = self.calculate(first_value, second_value)
+        b = self.stack.pop()
+        a = self.stack.pop()
+        result = self.calculate(a, b)
         self.stack.push(result)
 
     @abc.abstractmethod
-    def calculate(self, first_value: int, second_value: int) -> int: ...
+    def calculate(self, a: int, b: int) -> int: ...
 
 
 class AddCommand(OperationCommand):
-    def calculate(self, first_value: int, second_value: int) -> int:
-        return first_value + second_value
+    def calculate(self, a: int, b: int) -> int:
+        return a + b
 
 
 class SubtractCommand(OperationCommand):
-    def calculate(self, first_value: int, second_value: int) -> int:
-        return first_value - second_value
+    def calculate(self, a: int, b: int) -> int:
+        return a - b
 
 
 class MultiplyCommand(OperationCommand):
-    def calculate(self, first_value: int, second_value: int) -> int:
-        return first_value * second_value
+    def calculate(self, a: int, b: int) -> int:
+        return a * b
 
 
 class DivideCommand(OperationCommand):
-    def calculate(self, first_value: int, second_value: int) -> int:
-        return first_value // second_value
+    def calculate(self, a: int, b: int) -> int:
+        return a // b
 
 
 class CalculatorCommandParser(abc.ABC):
