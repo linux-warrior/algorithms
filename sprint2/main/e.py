@@ -31,7 +31,7 @@ def solution(node: DoubleConnectedNode) -> DoubleConnectedNode:
         reversed_node = previous_reversed_node
 
 
-def test():
+def test() -> None:
     node3 = DoubleConnectedNode('node3')
     node2 = DoubleConnectedNode('node2')
     node1 = DoubleConnectedNode('node1')
