@@ -63,7 +63,7 @@ class QuicksortHelper[T]:
         if right <= left:
             return
 
-        pivot = self.array[(left + right) // 2]
+        pivot = self._get_pivot(left=left, right=right)
         i = left - 1
         j = right + 1
 
@@ -87,6 +87,9 @@ class QuicksortHelper[T]:
 
         self.sort(left=left, right=j)
         self.sort(left=j + 1, right=right)
+
+    def _get_pivot(self, *, left: int, right: int) -> T:
+        return self.array[(left + right) // 2]
 
 
 @dataclasses.dataclass(kw_only=True)
