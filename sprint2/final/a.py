@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22781/run-report/140472573/
+# https://contest.yandex.ru/contest/22781/run-report/141638677/
 #
 # -- Принцип работы --
 #
@@ -213,7 +213,7 @@ class PopFrontCommandParser(DequeCommandParser):
         return PopFrontCommand(deque)
 
 
-class DequeCommandExecutor:
+class DequeCommandsExecutor:
     deque: Deque
     command_parsers: Iterable[DequeCommandParser]
 
@@ -245,7 +245,7 @@ def main() -> None:
     max_size = int(input().strip())
 
     deque = Deque(max_size=max_size)
-    commands_executor = DequeCommandExecutor(deque)
+    commands_executor = DequeCommandsExecutor(deque)
 
     for i in range(commands_count):
         command_str = input().strip()

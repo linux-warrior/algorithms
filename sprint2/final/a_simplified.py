@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22781/run-report/140478083/
+# https://contest.yandex.ru/contest/22781/run-report/141639047/
 #
 # -- Принцип работы --
 #
@@ -89,7 +89,7 @@ class Deque:
 type DequeCommandParser = Callable[[re.Match[str]], str | None]
 
 
-class DequeCommandExecutor:
+class DequeCommandsExecutor:
     deque: Deque
     command_parsers: Iterable[tuple[re.Pattern[str], DequeCommandParser]]
 
@@ -130,12 +130,12 @@ class DequeCommandExecutor:
         self.deque.push_front(item)
 
     # noinspection PyUnusedLocal
-    def _parse_pop_back(self, command_match: re.Match[str]) -> str | None:
+    def _parse_pop_back(self, command_match: re.Match[str]) -> str:
         item = self.deque.pop_back()
         return str(item)
 
     # noinspection PyUnusedLocal
-    def _parse_pop_front(self, command_match: re.Match[str]) -> str | None:
+    def _parse_pop_front(self, command_match: re.Match[str]) -> str:
         item = self.deque.pop_front()
         return str(item)
 
@@ -145,7 +145,7 @@ def main() -> None:
     max_size = int(input().strip())
 
     deque = Deque(max_size=max_size)
-    commands_executor = DequeCommandExecutor(deque)
+    commands_executor = DequeCommandsExecutor(deque)
 
     for i in range(commands_count):
         command_str = input().strip()
