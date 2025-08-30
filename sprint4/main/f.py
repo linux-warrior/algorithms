@@ -21,7 +21,7 @@ class SubstringHashTool:
         self._a_powers = self._calculate_a_powers()
 
     def _calculate_prefix_hashes(self) -> Sequence[int]:
-        result = []
+        result: list[int] = []
 
         hash_value = 0
         result.append(hash_value)
@@ -33,7 +33,7 @@ class SubstringHashTool:
         return result
 
     def _calculate_a_powers(self) -> Sequence[int]:
-        result = []
+        result: list[int] = []
 
         a_power = 1
         result.append(a_power)
