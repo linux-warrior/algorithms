@@ -1,10 +1,7 @@
-# FIXME: часть тестов завершаются с ошибкой "memory-limit-exceeded"
-
 from __future__ import annotations
 
 import itertools
 import sys
-from collections import defaultdict
 from collections.abc import Sequence
 from typing import cast
 
@@ -15,7 +12,7 @@ type FourTuple = tuple[int, int, int, int]
 def find_four_tuples(values: Sequence[int], *, sum_value: int) -> Sequence[FourTuple]:
     four_tuples_set = set[FourTuple]()
 
-    two_tuples_dict = defaultdict[int, set[TwoTuple]](set)
+    two_tuples_dict: dict[int, list[TwoTuple]] = {}
     values_len = len(values)
 
     for a_i in range(values_len - 1):
@@ -25,15 +22,19 @@ def find_four_tuples(values: Sequence[int], *, sum_value: int) -> Sequence[FourT
             b = values[b_i]
             sum_of_two = a + b
             expected_sum_of_two = sum_value - sum_of_two
+            two_tuples_list = two_tuples_dict.get(expected_sum_of_two, [])
 
-            for c_i, d_i in two_tuples_dict[expected_sum_of_two]:
-                if len({a_i, b_i, c_i, d_i}) == 4:
-                    four_tuples_set.add(cast(
-                        FourTuple,
-                        tuple(sorted((a, b, values[c_i], values[d_i]))),
-                    ))
+            for c_i, d_i in two_tuples_list:
+                four_tuples_set.add(cast(
+                    FourTuple,
+                    tuple(sorted((a, b, values[c_i], values[d_i]))),
+                ))
 
-            two_tuples_dict[sum_of_two].add((a_i, b_i))
+        for b_i in range(a_i):
+            b = values[b_i]
+            sum_of_two = a + b
+            two_tuples_list = two_tuples_dict.setdefault(sum_of_two, [])
+            two_tuples_list.append((a_i, b_i))
 
     return sorted(four_tuples_set)
 
