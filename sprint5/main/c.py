@@ -12,7 +12,7 @@ if LOCAL:
             self.left = left
 
 
-def solution(root) -> bool:
+def solution(root: Node) -> bool:
     return are_symmetrical(root.left, root.right)
 
 
