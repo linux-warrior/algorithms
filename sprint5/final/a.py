@@ -42,7 +42,7 @@ class Heap[T: Comparable]:
 
             parent_index = (index - 1) // 2
 
-            if not self.nodes[parent_index] < self.nodes[index]:
+            if not self.nodes[index] < self.nodes[parent_index]:
                 return
 
             (
@@ -77,27 +77,27 @@ class Heap[T: Comparable]:
                 return
 
             right_child_index = left_child_index + 1
-            largest_child_index: int
+            smallest_child_index: int
 
             if (
                     right_child_index <= last_node_index and
-                    self.nodes[left_child_index] < self.nodes[right_child_index]
+                    self.nodes[right_child_index] < self.nodes[left_child_index]
             ):
-                largest_child_index = right_child_index
+                smallest_child_index = right_child_index
             else:
-                largest_child_index = left_child_index
+                smallest_child_index = left_child_index
 
-            if not self.nodes[index] < self.nodes[largest_child_index]:
+            if not self.nodes[smallest_child_index] < self.nodes[index]:
                 return
 
             (
                 self.nodes[index],
-                self.nodes[largest_child_index],
+                self.nodes[smallest_child_index],
             ) = (
-                self.nodes[largest_child_index],
+                self.nodes[smallest_child_index],
                 self.nodes[index],
             )
-            index = largest_child_index
+            index = smallest_child_index
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -107,7 +107,7 @@ class Participant(Comparable):
     penalty: int
 
     def __lt__(self, other: Self) -> bool:
-        return self.get_comparison_key() > other.get_comparison_key()
+        return self.get_comparison_key() < other.get_comparison_key()
 
     def get_comparison_key(self) -> Comparable:
         return (
