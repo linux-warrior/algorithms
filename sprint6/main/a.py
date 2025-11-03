@@ -43,6 +43,8 @@ class AdjacencyList:
 
     def add_vertex(self, vertex: int) -> None:
         self.vertices.append(vertex)
+
+    def sort(self) -> None:
         self.vertices.sort()
 
 
@@ -64,12 +66,18 @@ class Graph:
         adjacency_list = self.adjacency_lists[edge[0]]
         adjacency_list.add_vertex(edge[1])
 
+    def sort(self) -> None:
+        for adjacency_list in self:
+            adjacency_list.sort()
+
     @classmethod
     def read(cls, *, vertices_count: int, edges_count: int) -> Self:
         graph = cls(vertices_count=vertices_count)
 
         for edge in Edge.read_list(edges_count):
             graph.add_edge(edge)
+
+        graph.sort()
 
         return graph
 
