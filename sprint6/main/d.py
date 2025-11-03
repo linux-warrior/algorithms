@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import enum
 import itertools
+from collections import deque
 from collections.abc import Iterable, Iterator
 from typing import Self
 
@@ -41,9 +42,6 @@ class AdjacencyList:
 
     def __iter__(self) -> Iterator[int]:
         yield from self.vertices
-
-    def __reversed__(self) -> Iterator[int]:
-        yield from reversed(self.vertices)
 
     def as_list(self) -> Iterator[int]:
         yield from map(lambda vertex: vertex + 1, self)
@@ -91,9 +89,9 @@ class Graph:
         for adjacency_list in self:
             adjacency_list.sort()
 
-    def run_dfs(self, start_vertex: int) -> Iterable[int]:
-        dfs = DFS(self)
-        yield from dfs.run(start_vertex)
+    def run_bfs(self, start_vertex: int) -> Iterable[int]:
+        bfs = BFS(self)
+        yield from bfs.run(start_vertex)
 
     @classmethod
     def read(cls, *, vertices_count: int, edges_count: int, is_directed: bool = True) -> Self:
@@ -132,54 +130,52 @@ class VerticesState:
         self.colors[vertex] = VertexColor.BLACK
 
 
-class VerticesStack:
-    vertices: list[int]
+class VerticesQueue:
+    vertices: deque[int]
 
     def __init__(self) -> None:
-        self.vertices = []
+        self.vertices = deque()
 
     def __bool__(self) -> bool:
         return bool(self.vertices)
 
-    def push(self, vertex: int) -> None:
+    def put(self, vertex: int) -> None:
         self.vertices.append(vertex)
 
-    def pop(self) -> int:
-        return self.vertices.pop()
+    def get(self) -> int:
+        return self.vertices.popleft()
 
 
-class DFS:
+class BFS:
     graph: Graph
     state: VerticesState
-    stack: VerticesStack
+    queue: VerticesQueue
 
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
         self.state = VerticesState()
-        self.stack = VerticesStack()
+        self.queue = VerticesQueue()
 
     def run(self, start_vertex: int) -> Iterable[int]:
         self.state = VerticesState(vertices_count=len(self.graph))
-        self.stack = VerticesStack()
-        self.stack.push(start_vertex)
+        self.queue = VerticesQueue()
 
-        while self.stack:
-            vertex = self.stack.pop()
+        self._visit_vertex(start_vertex)
+        yield start_vertex
 
-            if not self.state.is_visited(vertex):
-                self._visit_vertex(vertex)
-                yield vertex
+        while self.queue:
+            vertex = self.queue.get()
 
-            elif not self.state.is_processed(vertex):
-                self._process_vertex(vertex)
+            for neighbor in self.graph[vertex]:
+                if not self.state.is_visited(neighbor):
+                    self._visit_vertex(neighbor)
+                    yield neighbor
+
+            self._process_vertex(vertex)
 
     def _visit_vertex(self, vertex: int) -> None:
         self.state.visit(vertex)
-        self.stack.push(vertex)
-
-        for neighbor in reversed(self.graph[vertex]):
-            if not self.state.is_visited(neighbor):
-                self.stack.push(neighbor)
+        self.queue.put(vertex)
 
     def _process_vertex(self, vertex: int) -> None:
         self.state.process(vertex)
@@ -194,7 +190,7 @@ def main() -> None:
     )
     start_vertex = int(input()) - 1
 
-    vertices_iter = graph.run_dfs(start_vertex)
+    vertices_iter = graph.run_bfs(start_vertex)
     print(*map(lambda vertex: vertex + 1, vertices_iter))
 
 
