@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import enum
 import itertools
-from collections.abc import Iterable, Iterator, Sequence
+from collections import deque
+from collections.abc import Iterable, Iterator
 from typing import Self
 
 
@@ -12,6 +13,9 @@ class Edge:
     def __init__(self, *, vertices: Iterable[int]) -> None:
         vertices_list = list(itertools.islice(vertices, 2))
         self.vertices = vertices_list[0], vertices_list[1]
+
+    def __iter__(self) -> Iterator[int]:
+        yield from self.vertices
 
     def __getitem__(self, index: int) -> int:
         return self.vertices[index]
@@ -41,9 +45,6 @@ class AdjacencyList:
 
     def __iter__(self) -> Iterator[int]:
         yield from self.vertices
-
-    def __reversed__(self) -> Iterator[int]:
-        yield from reversed(self.vertices)
 
     def as_list(self) -> Iterator[int]:
         yield from map(lambda vertex: vertex + 1, self)
@@ -84,12 +85,12 @@ class Graph:
         adjacency_list = self.adjacency_lists[edge[0]]
         adjacency_list.add_vertex(edge[1])
 
-    def get_components(self) -> Sequence[Sequence[int]]:
-        dfs = DFS(self)
-        visitor = GetComponentsVisitor()
-        dfs.run(visitor=visitor)
+    def get_distance(self, start_vertex: int, end_vertex: int) -> int | None:
+        bfs = BFS(self)
+        visitor = GetDistanceVisitor(vertices_count=len(self))
+        bfs.run(start_vertex, end_vertex, visitor=visitor)
 
-        return visitor.get_components()
+        return visitor.get_distance(end_vertex)
 
     @classmethod
     def read(cls, *, vertices_count: int, edges_count: int, is_directed: bool = True) -> Self:
@@ -126,110 +127,89 @@ class VerticesState:
         self.colors[vertex] = VertexColor.BLACK
 
 
-class VerticesStack:
-    vertices: list[int]
+class VerticesQueue:
+    vertices: deque[int]
 
     def __init__(self) -> None:
-        self.vertices = []
+        self.vertices = deque()
 
     def __bool__(self) -> bool:
         return bool(self.vertices)
 
-    def push(self, vertex: int) -> None:
+    def put(self, vertex: int) -> None:
         self.vertices.append(vertex)
 
-    def pop(self) -> int:
-        return self.vertices.pop()
+    def get(self) -> int:
+        return self.vertices.popleft()
 
 
-class DFS:
+class BFS:
     graph: Graph
     state: VerticesState
-    stack: VerticesStack
+    queue: VerticesQueue
 
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
         self.state = VerticesState()
-        self.stack = VerticesStack()
+        self.queue = VerticesQueue()
 
-    def run(self, *, visitor: DFSVisitor) -> None:
-        vertices_count = len(self.graph)
-        self.state = VerticesState(vertices_count=vertices_count)
-        start_vertex = 0
+    def run(self, start_vertex: int, end_vertex: int, *, visitor: BFSVisitor) -> None:
+        self.state = VerticesState(vertices_count=len(self.graph))
+        self.queue = VerticesQueue()
 
-        while start_vertex < vertices_count:
-            self._handle_component(start_vertex, visitor=visitor)
+        self._visit_vertex(start_vertex, visitor=visitor)
 
-            while start_vertex < vertices_count:
-                if not self.state.is_visited(start_vertex):
-                    break
+        while self.queue:
+            vertex = self.queue.get()
 
-                start_vertex += 1
-
-    def _handle_component(self, start_vertex: int, *, visitor: DFSVisitor) -> None:
-        visitor.start_handle_component()
-        self.stack = VerticesStack()
-        self.stack.push(start_vertex)
-
-        while self.stack:
-            vertex = self.stack.pop()
-
-            if not self.state.is_visited(vertex):
-                self._visit_vertex(vertex, visitor=visitor)
-
-            elif not self.state.is_processed(vertex):
+            if vertex == end_vertex:
                 self._process_vertex(vertex, visitor=visitor)
+                break
 
-        visitor.end_handle_component()
+            for neighbor in self.graph[vertex]:
+                if not self.state.is_visited(neighbor):
+                    self._visit_vertex(neighbor, visitor=visitor, previous_vertex=vertex)
 
-    def _visit_vertex(self, vertex: int, *, visitor: DFSVisitor) -> None:
-        visitor.start_handle_vertex(vertex)
+            self._process_vertex(vertex, visitor=visitor)
+
+    def _visit_vertex(self, vertex: int, *, previous_vertex: int | None = None, visitor: BFSVisitor) -> None:
+        visitor.start_handle_vertex(vertex, previous_vertex=previous_vertex)
         self.state.visit(vertex)
-        self.stack.push(vertex)
+        self.queue.put(vertex)
 
-        for neighbor in reversed(self.graph[vertex]):
-            if not self.state.is_visited(neighbor):
-                self.stack.push(neighbor)
-
-    def _process_vertex(self, vertex: int, *, visitor: DFSVisitor) -> None:
+    def _process_vertex(self, vertex: int, *, visitor: BFSVisitor) -> None:
         self.state.process(vertex)
         visitor.end_handle_vertex(vertex)
 
 
-class DFSVisitor:
-    def start_handle_component(self) -> None:
-        pass
-
-    def end_handle_component(self) -> None:
-        pass
-
-    def start_handle_vertex(self, vertex: int) -> None:
+class BFSVisitor:
+    def start_handle_vertex(self, vertex: int, *, previous_vertex: int | None = None) -> None:
         pass
 
     def end_handle_vertex(self, vertex: int) -> None:
         pass
 
 
-class GetComponentsVisitor(DFSVisitor):
-    components: list[list[int]]
-    current_component: list[int]
+class GetDistanceVisitor(BFSVisitor):
+    distances: list[int | None]
 
-    def __init__(self) -> None:
-        self.components = []
-        self.current_component = []
+    def __init__(self, *, vertices_count: int) -> None:
+        self.distances = [None] * vertices_count
 
-    def get_components(self) -> Sequence[Sequence[int]]:
-        return self.components
+    def get_distance(self, vertex: int) -> int | None:
+        return self.distances[vertex]
 
-    def start_handle_component(self) -> None:
-        self.current_component = []
+    def start_handle_vertex(self, vertex: int, *, previous_vertex: int | None = None) -> None:
+        self.distances[vertex] = self._get_current_distance(previous_vertex=previous_vertex)
 
-    def end_handle_component(self) -> None:
-        self.current_component.sort()
-        self.components.append(self.current_component)
+    def _get_current_distance(self, *, previous_vertex: int | None = None) -> int | None:
+        if previous_vertex is None:
+            return 0
 
-    def start_handle_vertex(self, vertex: int) -> None:
-        self.current_component.append(vertex)
+        previous_distance = self.distances[previous_vertex]
+        current_distance = previous_distance + 1 if previous_distance is not None else None
+
+        return current_distance
 
 
 def main() -> None:
@@ -239,12 +219,10 @@ def main() -> None:
         edges_count=edges_count,
         is_directed=False,
     )
+    start_vertex, end_vertex = Edge.read()
 
-    components = graph.get_components()
-    print(len(components))
-
-    for component in components:
-        print(*map(lambda vertex: vertex + 1, component))
+    distance = graph.get_distance(start_vertex, end_vertex)
+    print(distance if distance is not None else -1)
 
 
 if __name__ == '__main__':
