@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import dataclasses
 import enum
 import itertools
 from collections.abc import Iterable, Iterator
@@ -55,9 +54,6 @@ class AdjacencyList:
     def add_vertex(self, vertex: int) -> None:
         self.vertices.append(vertex)
 
-    def sort(self) -> None:
-        self.vertices.sort()
-
 
 class Graph:
     is_directed: bool
@@ -91,16 +87,12 @@ class Graph:
         adjacency_list = self.adjacency_lists[edge[0]]
         adjacency_list.add_vertex(edge[1])
 
-    def sort(self) -> None:
-        for adjacency_list in self:
-            adjacency_list.sort()
-
-    def get_vertices_times(self, start_vertex: int) -> Iterable[VertexTime]:
+    def get_topological_sort(self) -> Iterable[int]:
         dfs = DFS(self)
-        visitor = GetVerticesTimesVisitor(vertices_count=len(self))
-        dfs.run(start_vertex, visitor=visitor)
+        visitor = TopologicalSortVisitor()
+        dfs.run(visitor=visitor)
 
-        return visitor.get_vertices_times()
+        return visitor.get_result()
 
     @classmethod
     def read(cls, *, vertices_count: int, edges_count: int, is_directed: bool = True) -> Self:
@@ -108,8 +100,6 @@ class Graph:
 
         for edge in Edge.read_list(edges_count):
             graph.add_edge(edge)
-
-        graph.sort()
 
         return graph
 
@@ -165,8 +155,22 @@ class DFS:
         self.state = VerticesState()
         self.stack = VerticesStack()
 
-    def run(self, start_vertex: int, *, visitor: DFSVisitor) -> None:
-        self.state = VerticesState(vertices_count=len(self.graph))
+    def run(self, *, visitor: DFSVisitor) -> None:
+        vertices_count = len(self.graph)
+        self.state = VerticesState(vertices_count=vertices_count)
+        start_vertex = 0
+
+        while start_vertex < vertices_count:
+            self._handle_component(start_vertex, visitor=visitor)
+
+            while start_vertex < vertices_count:
+                if not self.state.is_visited(start_vertex):
+                    break
+
+                start_vertex += 1
+
+    def _handle_component(self, start_vertex: int, *, visitor: DFSVisitor) -> None:
+        visitor.start_handle_component()
         self.stack = VerticesStack()
         self.stack.push(start_vertex)
 
@@ -178,6 +182,8 @@ class DFS:
 
             elif not self.state.is_processed(vertex):
                 self._process_vertex(vertex, visitor=visitor)
+
+        visitor.end_handle_component()
 
     def _visit_vertex(self, vertex: int, *, visitor: DFSVisitor) -> None:
         visitor.start_handle_vertex(vertex)
@@ -194,6 +200,12 @@ class DFS:
 
 
 class DFSVisitor:
+    def start_handle_component(self) -> None:
+        pass
+
+    def end_handle_component(self) -> None:
+        pass
+
     def start_handle_vertex(self, vertex: int) -> None:
         pass
 
@@ -201,33 +213,17 @@ class DFSVisitor:
         pass
 
 
-@dataclasses.dataclass(kw_only=True)
-class VertexTime:
-    arrival: int | None = None
-    departure: int | None = None
+class TopologicalSortVisitor(DFSVisitor):
+    vertices: list[int]
 
+    def __init__(self) -> None:
+        self.vertices = []
 
-class GetVerticesTimesVisitor(DFSVisitor):
-    arrival_times: list[int | None]
-    departure_times: list[int | None]
-    current_time: int
-
-    def __init__(self, *, vertices_count: int) -> None:
-        self.arrival_times = [None] * vertices_count
-        self.departure_times = [None] * vertices_count
-        self.current_time = 0
-
-    def get_vertices_times(self) -> Iterable[VertexTime]:
-        for arrival_time, departure_time in zip(self.arrival_times, self.departure_times):
-            yield VertexTime(arrival=arrival_time, departure=departure_time)
-
-    def start_handle_vertex(self, vertex: int) -> None:
-        self.arrival_times[vertex] = self.current_time
-        self.current_time += 1
+    def get_result(self) -> Iterable[int]:
+        return reversed(self.vertices)
 
     def end_handle_vertex(self, vertex: int) -> None:
-        self.departure_times[vertex] = self.current_time
-        self.current_time += 1
+        self.vertices.append(vertex)
 
 
 def main() -> None:
@@ -237,10 +233,8 @@ def main() -> None:
         edges_count=edges_count,
     )
 
-    vertices_times = graph.get_vertices_times(0)
-
-    for vertex_time in vertices_times:
-        print(vertex_time.arrival, vertex_time.departure)
+    topological_sort = graph.get_topological_sort()
+    print(*map(lambda vertex: vertex + 1, topological_sort))
 
 
 if __name__ == '__main__':
