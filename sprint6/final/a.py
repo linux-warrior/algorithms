@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+import heapq
 import itertools
-from collections import deque
 from collections.abc import Iterable, Iterator
 from typing import Self
 
 
 class Edge:
     vertices: tuple[int, int]
+    weight: int
 
-    def __init__(self, *, vertices: Iterable[int]) -> None:
+    def __init__(self, vertices: Iterable[int], *, weight: int) -> None:
         vertices_list = list(itertools.islice(vertices, 2))
         self.vertices = vertices_list[0], vertices_list[1]
+        self.weight = weight
 
     def __iter__(self) -> Iterator[int]:
         yield from self.vertices
@@ -20,12 +22,18 @@ class Edge:
         return self.vertices[index]
 
     def __neg__(self) -> Self:
-        return self.__class__(vertices=[self[1], self[0]])
+        return self.__class__([self[1], self[0]], weight=self.weight)
+
+    def get_weight(self) -> int:
+        return self.weight
 
     @classmethod
     def read(cls) -> Self:
-        vertices_iter = map(lambda vertex_str: int(vertex_str) - 1, input().split())
-        return cls(vertices=vertices_iter)
+        values_list = list(map(int, input().split()))
+        vertices = map(lambda vertex: vertex - 1, values_list[:2])
+        weight = values_list[2]
+
+        return cls(vertices, weight=weight)
 
     @classmethod
     def read_list(cls, count: int) -> Iterable[Self]:
@@ -35,21 +43,21 @@ class Edge:
 
 class AdjacencyList:
     vertices: list[int]
+    weights: list[int]
 
     def __init__(self) -> None:
         self.vertices = []
+        self.weights = []
 
     def __len__(self) -> int:
         return len(self.vertices)
 
-    def __iter__(self) -> Iterator[int]:
-        yield from self.vertices
+    def __iter__(self) -> Iterator[tuple[int, int]]:
+        yield from zip(self.vertices, self.weights)
 
-    def as_list(self) -> Iterator[int]:
-        yield from map(lambda vertex: vertex + 1, self)
-
-    def add_vertex(self, vertex: int) -> None:
+    def add_vertex(self, vertex: int, *, weight: int) -> None:
         self.vertices.append(vertex)
+        self.weights.append(weight)
 
 
 class Graph:
@@ -82,14 +90,17 @@ class Graph:
 
     def _add_edge(self, edge: Edge) -> None:
         adjacency_list = self.adjacency_lists[edge[0]]
-        adjacency_list.add_vertex(edge[1])
+        adjacency_list.add_vertex(edge[1], weight=edge.get_weight())
 
-    def get_max_distance(self, start_vertex: int) -> int | None:
-        bfs = BFS(self)
-        visitor = GetMaxDistanceVisitor(vertices_count=len(self))
-        bfs.run(start_vertex, visitor=visitor)
+    def get_max_spanning_tree_weight(self) -> int | None:
+        mst_tool = MaxSpanningTreeTool(self)
 
-        return visitor.get_max_distance()
+        try:
+            mst_tool.run()
+        except MaxSpanningTreeException:
+            return None
+
+        return mst_tool.get_weight()
 
     @classmethod
     def read(cls, *, vertices_count: int, edges_count: int, is_directed: bool = True) -> Self:
@@ -107,6 +118,9 @@ class VerticesState:
     def __init__(self, *, vertices_count: int = 0) -> None:
         self.visited = [False] * vertices_count
 
+    def all_visited(self) -> bool:
+        return all(self.visited)
+
     def is_visited(self, vertex: int) -> bool:
         return self.visited[vertex]
 
@@ -115,75 +129,70 @@ class VerticesState:
 
 
 class VerticesQueue:
-    vertices: deque[int]
+    items: list[tuple[int, int]]
 
     def __init__(self) -> None:
-        self.vertices = deque()
+        self.items = []
 
     def __bool__(self) -> bool:
-        return bool(self.vertices)
+        return bool(self.items)
 
-    def put(self, vertex: int) -> None:
-        self.vertices.append(vertex)
+    def put(self, vertex: int, *, weight: int) -> None:
+        heapq.heappush(self.items, (-weight, vertex))
 
-    def get(self) -> int:
-        return self.vertices.popleft()
+    def get(self) -> tuple[int, int]:
+        neg_weight, vertex = heapq.heappop(self.items)
+
+        return vertex, -neg_weight
 
 
-class BFS:
+class MaxSpanningTreeException(Exception):
+    pass
+
+
+class DisconnectedGraphException(MaxSpanningTreeException):
+    pass
+
+
+class MaxSpanningTreeTool:
     graph: Graph
     state: VerticesState
     queue: VerticesQueue
+    weight: int
 
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
         self.state = VerticesState()
         self.queue = VerticesQueue()
+        self.weight = 0
 
-    def run(self, start_vertex: int, *, visitor: BFSVisitor) -> None:
+    def get_weight(self) -> int:
+        return self.weight
+
+    def run(self) -> None:
         self.state = VerticesState(vertices_count=len(self.graph))
         self.queue = VerticesQueue()
+        self.weight = 0
 
-        self._visit_vertex(start_vertex, visitor=visitor)
+        self.queue.put(0, weight=0)
 
         while self.queue:
-            vertex = self.queue.get()
+            vertex, vertex_weight = self.queue.get()
 
-            for neighbor in self.graph[vertex]:
-                if not self.state.is_visited(neighbor):
-                    self._visit_vertex(neighbor, visitor=visitor, previous_vertex=vertex)
+            if self.state.is_visited(vertex):
+                continue
 
-    def _visit_vertex(self, vertex: int, *, previous_vertex: int | None = None, visitor: BFSVisitor) -> None:
-        visitor.handle_vertex(vertex, previous_vertex=previous_vertex)
-        self.state.visit(vertex)
-        self.queue.put(vertex)
+            self.state.visit(vertex)
+            self.weight += vertex_weight
 
+            for neighbor, neighbor_weight in self.graph[vertex]:
+                if self.state.is_visited(neighbor):
+                    continue
 
-class BFSVisitor:
-    def handle_vertex(self, vertex: int, *, previous_vertex: int | None = None) -> None:
-        pass
+                self.queue.put(neighbor, weight=neighbor_weight)
 
-
-class GetMaxDistanceVisitor(BFSVisitor):
-    distances: list[int | None]
-
-    def __init__(self, *, vertices_count: int) -> None:
-        self.distances = [None] * vertices_count
-
-    def get_max_distance(self) -> int | None:
-        return max((distance for distance in self.distances if distance is not None), default=None)
-
-    def handle_vertex(self, vertex: int, *, previous_vertex: int | None = None) -> None:
-        self.distances[vertex] = self._get_current_distance(previous_vertex=previous_vertex)
-
-    def _get_current_distance(self, *, previous_vertex: int | None = None) -> int | None:
-        if previous_vertex is None:
-            return 0
-
-        previous_distance = self.distances[previous_vertex]
-        current_distance = previous_distance + 1 if previous_distance is not None else None
-
-        return current_distance
+        if not self.state.all_visited():
+            raise DisconnectedGraphException
 
 
 def main() -> None:
@@ -193,10 +202,9 @@ def main() -> None:
         edges_count=edges_count,
         is_directed=False,
     )
-    start_vertex = int(input()) - 1
 
-    max_distance = graph.get_max_distance(start_vertex)
-    print(max_distance if max_distance is not None else -1)
+    weight = graph.get_max_spanning_tree_weight()
+    print(weight if weight is not None else 'Oops! I did it again')
 
 
 if __name__ == '__main__':
