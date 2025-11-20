@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25070/run-report/148994478/
+# https://contest.yandex.ru/contest/25070/run-report/149585213/
 #
 # -- Принцип работы --
 #
@@ -49,33 +49,32 @@ from collections.abc import Iterable, Iterator
 from typing import Self
 
 type Edge = tuple[int, int, int]
+type EdgeVertex = tuple[int, int]
 
 
 class AdjacencyList:
-    vertices: list[int]
-    weights: list[int]
+    edge_vertices: list[EdgeVertex]
+
+    __slots__ = ('edge_vertices',)
 
     def __init__(self) -> None:
-        self.vertices = []
-        self.weights = []
+        self.edge_vertices = []
 
     def __len__(self) -> int:
-        return len(self.vertices)
+        return len(self.edge_vertices)
 
-    def __iter__(self) -> Iterator[tuple[int, int]]:
-        yield from zip(self.vertices, self.weights)
+    def __iter__(self) -> Iterator[EdgeVertex]:
+        yield from self.edge_vertices
 
     def add_vertex(self, vertex: int, *, weight: int) -> None:
-        self.vertices.append(vertex)
-        self.weights.append(weight)
+        self.edge_vertices.append((vertex, weight))
 
 
 class Graph:
     adjacency_lists: list[AdjacencyList]
 
     def __init__(self, *, vertices_count: int = 0) -> None:
-        self.adjacency_lists = []
-        self.create_vertices(vertices_count)
+        self.adjacency_lists = [AdjacencyList() for _i in range(vertices_count)]
 
     def __len__(self) -> int:
         return len(self.adjacency_lists)
@@ -85,9 +84,6 @@ class Graph:
 
     def __getitem__(self, vertex: int) -> AdjacencyList:
         return self.adjacency_lists[vertex]
-
-    def create_vertices(self, count: int) -> None:
-        self.adjacency_lists.extend(AdjacencyList() for _i in range(count))
 
     def add_edge(self, edge: Edge) -> None:
         self._add_edge(edge)
