@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25070/run-report/148257584/
+# https://contest.yandex.ru/contest/25070/run-report/149551847/
 #
 # -- Принцип работы --
 #
@@ -54,6 +54,8 @@ class Edge:
     vertices: tuple[int, int]
     weight: int
 
+    __slots__ = ('vertices', 'weight')
+
     def __init__(self, vertices: Iterable[int], *, weight: int) -> None:
         vertices_list = list(itertools.islice(vertices, 2))
         self.vertices = vertices_list[0], vertices_list[1]
@@ -73,7 +75,7 @@ class Edge:
 
     @classmethod
     def read(cls) -> Self:
-        values_list = list(map(int, input().split()))
+        values_list = list(map(int, input().split()[:3]))
         vertices = map(lambda vertex: vertex - 1, values_list[:2])
         weight = values_list[2]
 
@@ -85,9 +87,14 @@ class Edge:
             yield cls.read()
 
 
+type EdgeVertex = tuple[int, int]
+
+
 class AdjacencyList:
     vertices: list[int]
     weights: list[int]
+
+    __slots__ = ('vertices', 'weights')
 
     def __init__(self) -> None:
         self.vertices = []
@@ -96,7 +103,7 @@ class AdjacencyList:
     def __len__(self) -> int:
         return len(self.vertices)
 
-    def __iter__(self) -> Iterator[tuple[int, int]]:
+    def __iter__(self) -> Iterator[EdgeVertex]:
         yield from zip(self.vertices, self.weights)
 
     def add_vertex(self, vertex: int, *, weight: int) -> None:
@@ -123,8 +130,7 @@ class Graph:
         return self.adjacency_lists[vertex]
 
     def create_vertices(self, count: int) -> None:
-        for i in range(count):
-            self.adjacency_lists.append(AdjacencyList())
+        self.adjacency_lists.extend(AdjacencyList() for _i in range(count))
 
     def add_edge(self, edge: Edge) -> None:
         self._add_edge(edge)
@@ -158,18 +164,21 @@ class Graph:
 
 class VerticesState:
     visited: list[bool]
+    visited_count: int
 
     def __init__(self, *, vertices_count: int = 0) -> None:
         self.visited = [False] * vertices_count
+        self.visited_count = 0
 
     def all_visited(self) -> bool:
-        return all(self.visited)
+        return self.visited_count == len(self.visited)
 
     def is_visited(self, vertex: int) -> bool:
         return self.visited[vertex]
 
     def visit(self, vertex: int) -> None:
         self.visited[vertex] = True
+        self.visited_count += 1
 
 
 class VerticesQueue:
