@@ -181,8 +181,11 @@ class VerticesState:
         self.visited_count += 1
 
 
+type VerticesQueueItem = tuple[int, int]
+
+
 class VerticesQueue:
-    items: list[tuple[int, int]]
+    items: list[VerticesQueueItem]
 
     def __init__(self) -> None:
         self.items = []
@@ -193,7 +196,7 @@ class VerticesQueue:
     def put(self, vertex: int, *, weight: int) -> None:
         heapq.heappush(self.items, (-weight, vertex))
 
-    def get(self) -> tuple[int, int]:
+    def get(self) -> EdgeVertex:
         neg_weight, vertex = heapq.heappop(self.items)
 
         return vertex, -neg_weight
