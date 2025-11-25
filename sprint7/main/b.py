@@ -6,7 +6,7 @@ type Time = tuple[int, int]
 type Event = tuple[Time, Time]
 
 
-def generate_schedule(events: Iterable[Event]) -> Iterable[Event]:
+def create_schedule(events: Iterable[Event]) -> Iterable[Event]:
     events_list = list(events)
     events_list.sort(key=lambda _event: (_event[1], _event[0]))
     previous_end_time: Time = (0, 0)
@@ -42,7 +42,7 @@ def main() -> None:
     events_count = int(input().strip())
     events = read_events(events_count)
 
-    schedule = list(generate_schedule(events))
+    schedule = list(create_schedule(events))
     print(len(schedule))
 
     for start_time, end_time in schedule:
