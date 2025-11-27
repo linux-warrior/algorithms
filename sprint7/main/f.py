@@ -14,7 +14,7 @@ def get_jumps_ways_count(stairs_count: int, max_jump: int, *, module: int) -> in
     jumps_ways_counts = [0] * stairs_count
     jumps_ways_counts[0] = 1
 
-    for stair_num in range(1, len(jumps_ways_counts)):
+    for stair_num in range(1, stairs_count):
         jumps_way_count = 0
 
         for jump in range(1, min(stair_num, max_jump) + 1):

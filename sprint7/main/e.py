@@ -10,10 +10,10 @@ def get_min_banknotes_count(price: int, *, denominations: Iterable[int]) -> int:
     denominations_list.sort()
 
     inf_count = price + 1
-    banknotes_counts: list[int] = [inf_count] * (price + 1)
+    banknotes_counts = [inf_count] * (price + 1)
     banknotes_counts[0] = 0
 
-    for price_value in range(len(banknotes_counts)):
+    for price_value in range(price + 1):
         for denomination in denominations_list:
             if denomination > price_value:
                 break
