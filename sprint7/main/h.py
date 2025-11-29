@@ -72,32 +72,25 @@ class GridPathFinder:
             return GridPath()
 
         self.tiles = self.grid.get_tiles()
-        self.flowers_counts = self._create_flowers_counts()
+        self.flowers_counts = [[0] * self.width for _y in range(self.height)]
         self._fill_flowers_counts()
 
         return GridPath(flowers_count=self.flowers_counts[0][-1])
 
-    def _create_flowers_counts(self) -> FlowersCounts:
-        flowers_counts: FlowersCounts = []
-
-        for _y in range(self.height):
-            flowers_counts_row = [0] * (self.width + 1)
-            flowers_counts_row[0] = -1
-            flowers_counts.append(flowers_counts_row)
-
-        flowers_counts.append([-1] * (self.width + 1))
-
-        for position in [(0, -1), (1, -1), (0, -2)]:
-            flowers_counts[position[1]][position[0]] = 0
-
-        return flowers_counts
-
     def _fill_flowers_counts(self) -> None:
-        for y in range(self.height - 1, -1, -1):
-            for x in range(self.width):
-                self.flowers_counts[y][x + 1] = max(
-                    self.flowers_counts[y][x],
-                    self.flowers_counts[y + 1][x + 1],
+        self.flowers_counts[-1][0] = int(self.tiles[-1][0])
+
+        for x in range(1, self.width):
+            self.flowers_counts[-1][x] = self.flowers_counts[-1][x - 1] + int(self.tiles[-1][x])
+
+        for y in range(self.height - 2, -1, -1):
+            self.flowers_counts[y][0] = self.flowers_counts[y + 1][0] + int(self.tiles[y][0])
+
+        for y in range(self.height - 2, -1, -1):
+            for x in range(1, self.width):
+                self.flowers_counts[y][x] = max(
+                    self.flowers_counts[y][x - 1],
+                    self.flowers_counts[y + 1][x],
                 ) + int(self.tiles[y][x])
 
 
