@@ -5,7 +5,7 @@ import sys
 from collections.abc import Collection
 
 
-def can_split_equally(values: Collection[int]) -> bool:
+def can_be_partitioned_equally(values: Collection[int]) -> bool:
     values_sum = sum(values)
 
     if values_sum % 2:
@@ -29,7 +29,7 @@ def main() -> None:
         map(int, sys.stdin.readline().split()),
         values_count,
     ))
-    print(can_split_equally(values))
+    print(can_be_partitioned_equally(values))
 
 
 if __name__ == '__main__':
