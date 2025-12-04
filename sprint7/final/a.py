@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25597/run-report/152406616/
+# https://contest.yandex.ru/contest/25597/run-report/152748986/
 #
 # -- Принцип работы --
 #
@@ -38,10 +38,7 @@ def get_levenstein_distance(a: str, b: str) -> int:
     if b_length > a_length:
         return get_levenstein_distance(b, a)
 
-    distances = [0] * (b_length + 1)
-
-    for b_i in range(1, b_length + 1):
-        distances[b_i] = b_i
+    distances = list(range(b_length + 1))
 
     for a_i in range(1, a_length + 1):
         distances_top_left = distances[0]

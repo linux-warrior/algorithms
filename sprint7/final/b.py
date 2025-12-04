@@ -67,6 +67,7 @@ def main() -> None:
         map(int, sys.stdin.readline().split()),
         values_count,
     ))
+
     print(can_be_partitioned_equally(values))
 
 
