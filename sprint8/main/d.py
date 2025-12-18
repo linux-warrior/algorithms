@@ -5,14 +5,20 @@ from collections.abc import Iterable, Sequence
 
 
 def get_max_common_prefix_length(strings: Sequence[str]) -> int:
+    strings_count = len(strings)
+
+    if not strings_count:
+        return 0
+
     min_length = min(len(s) for s in strings)
+    first_str = strings[0]
     char_i = 0
 
     while char_i < min_length:
-        char = strings[0][char_i]
+        char = first_str[char_i]
 
-        for s_i in range(1, len(strings)):
-            if strings[s_i][char_i] != char:
+        for str_i in range(1, strings_count):
+            if strings[str_i][char_i] != char:
                 return char_i
 
         char_i += 1
