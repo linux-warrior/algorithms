@@ -141,8 +141,8 @@ class UnpackTool:
             ']': self._parse_repetition_end,
         }
 
-        for digit in range(10):
-            token_parsers[str(digit)] = self._parse_repetition_count
+        _parse_repetition_count = self._parse_repetition_count
+        token_parsers.update((str(digit), _parse_repetition_count) for digit in range(10))
 
         return token_parsers
 
