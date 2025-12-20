@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
-import operator
 import sys
-from collections.abc import Iterable, Iterator, Sequence, Callable
+from collections.abc import Iterable, Iterator, Sequence, Mapping, Callable
 
 
 def get_longest_common_prefix(strings: Sequence[str]) -> str:
@@ -26,12 +24,13 @@ class CommonPrefixTool:
         return ''.join(self._get_longest_common_prefix_chars())
 
     def _get_longest_common_prefix_chars(self) -> Iterable[str]:
-        strings_count = len(self.strings)
+        strings = self.strings
+        strings_count = len(strings)
 
         if not strings_count:
             return
 
-        char_iter_list = [unpack_chars(s) for s in self.strings]
+        char_iter_list = [unpack_chars(s) for s in strings]
         first_char_iter = char_iter_list[0]
 
         while True:
@@ -114,7 +113,6 @@ class ParseTokenResult:
     new_pos: int
 
 
-type TokenCheck = Callable[[str], bool]
 type TokenParser = Callable[[str, int], ParseTokenResult | None]
 
 
@@ -122,7 +120,7 @@ class UnpackTool:
     s: str
     repetitions_stack: RepetitionsStack
     repetition_count: int
-    token_parsers: Iterable[tuple[TokenCheck, TokenParser]]
+    token_parsers: Mapping[str, TokenParser]
 
     __slots__ = (
         's',
@@ -137,37 +135,36 @@ class UnpackTool:
         self.repetition_count = 0
         self.token_parsers = self._get_token_parsers()
 
-    def _get_token_parsers(self) -> Iterable[tuple[TokenCheck, TokenParser]]:
-        return [
-            (str.isdigit, self._parse_repetition_count),
-            (functools.partial(operator.eq, '['), self._parse_repetition_start),
-            (functools.partial(operator.eq, ']'), self._parse_repetition_end),
-        ]
+    def _get_token_parsers(self) -> Mapping[str, TokenParser]:
+        token_parsers = {
+            '[': self._parse_repetition_start,
+            ']': self._parse_repetition_end,
+        }
+
+        for digit in range(10):
+            token_parsers[str(digit)] = self._parse_repetition_count
+
+        return token_parsers
 
     def unpack_chars(self) -> Iterator[str]:
         self.repetitions_stack = RepetitionsStack()
         self.repetition_count = 0
 
-        s_length = len(self.s)
+        s = self.s
+        token_parsers = self.token_parsers
+        s_length = len(s)
         pos = 0
 
         while pos < s_length:
-            char = self.s[pos]
-            is_token = False
-            parse_token_result: ParseTokenResult | None = None
+            char = s[pos]
+            token_parser = token_parsers.get(char)
 
-            for token_check, token_parser in self.token_parsers:
-                if not token_check(char):
-                    continue
-
-                is_token = True
-                parse_token_result = token_parser(char, pos)
-                break
-
-            if not is_token:
+            if token_parser is None:
                 pos += 1
                 yield char
                 continue
+
+            parse_token_result = token_parser(char, pos)
 
             if parse_token_result is None:
                 pos += 1
