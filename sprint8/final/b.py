@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/26133/run-report/154032747/
+# https://contest.yandex.ru/contest/26133/run-report/154321215/
 #
 # -- Принцип работы --
 #
@@ -63,7 +63,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 import sys
 from collections.abc import Iterable
 
@@ -73,16 +72,24 @@ def can_word_split(s: str, words: Iterable[str]) -> bool:
     return trie.can_word_split(s)
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
 class TrieNode:
-    is_word_end: bool = False
-    children: dict[str, TrieNode] = dataclasses.field(default_factory=dict)
+    is_word_end: bool
+    children: dict[str, TrieNode]
+
+    __slots__ = (
+        'is_word_end',
+        'children',
+    )
+
+    def __init__(self) -> None:
+        self.is_word_end = False
+        self.children = {}
 
 
 class Trie:
     root: TrieNode
 
-    __slots = (
+    __slots__ = (
         'root',
     )
 
