@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/26133/run-report/154076718/
+# https://contest.yandex.ru/contest/26133/run-report/154614832/
 #
 # -- Принцип работы --
 #
@@ -26,17 +26,12 @@
 #
 # --- Функция `get_longest_common_prefix()` ---
 #
-# Функция `get_longest_common_prefix()` распаковывает строки и находит их наибольший общий префикс.
-# Алгоритм определения наибольшего общего префикса реализован в классе `CommonPrefixTool`. Для повышения
-# эффективности, метод `CommonPrefixTool._get_longest_common_prefix_chars()` возвращает итератор символов,
-# чтобы не собирать их вручную в список перед объединением в строку.
-#
-# Нахождение наибольшего общего префикса в методе `CommonPrefixTool._get_longest_common_prefix_chars()`
-# осуществляется путем посимвольного сравнения значений, которые возвращают итераторы, полученные в
-# результате вызова функции `unpack_chars()` для запакованных строк. В каждой итерации цикла сравнения
-# мы проверяем, совпадает ли очередной символ распакованной первой строки с соответствующими символами
-# остальных строк. Если при сравнении символов было найдено расхождение, или же одна из строк неожиданно
-# закончилась, то функция завершает работу. В противном случае генератор возвращает очередной символ.
+# Функция `get_longest_common_prefix()` последовательно распаковывает строки, получая итераторы
+# символов из функции `unpack_chars()`, и находит их наибольший общий префикс, посимвольно сравнивая
+# каждую распакованную строку с первой. По результатам сравнения очередной пары строк обновляется
+# значение целочисленного указателя на конец общего префикса подмножества строк, обработанного на
+# текущий момент. Если после проверки очередной строки окажется, что текущий наибольший общий префикс
+# пустой, то функция прекращает дальнейшую распаковку строк и завершает работу.
 #
 # -- Доказательство корректности --
 #
@@ -45,78 +40,84 @@
 # максимально возможное число повторений цикла не превышает девяти, то все циклы рано или поздно будут
 # завершены.
 #
-# Функция `get_longest_common_prefix()` фактически реализует классический алгоритм нахождения наибольшего
-# общего префикса набора строк, основанный на посимвольном сравнении — за исключением того, что вместо
-# строк используются итераторы символов.
+# Поскольку операция нахождения наибольшего общего префикса ассоциативна, то, распаковывая и сравнивая
+# строки попарно, функция `get_longest_common_prefix()` найдет наибольший общий префикс всех переданных
+# в нее строк.
 #
 # -- Временная сложность --
 #
-# Поскольку цикл сравнения строк выполняется до тех пор, пока не встретятся отличающиеся друг от друга
-# символы, временную сложность алгоритма можно оценить как `O(n · min(|sᵢ|))`, где `n` — количество
-# переданных строк, а `|sᵢ|` — длина строки номер `i` в распакованном виде.
-#
+# Если наибольший общий префикс не является пустым, то функция `get_longest_common_prefix()` будет
+# распаковывать каждую последующую переданную в нее строку до того момента, пока при ее сравнении с
+# первой строкой не встретятся отличающиеся друг от друга символы. Поэтому временную сложность алгоритма
+# можно оценить как `O(Σ(min(k₁|s₁|, kᵢ|sᵢ|)))`, где `|sᵢ|` — длина строки `i`, а `kᵢ` — коэффициент
+# сжатия строки `i`, зависящий от количества повторений, которые содержатся в строке.
+
 # -- Пространственная сложность --
 #
-# В ходе своей работы алгоритм создает для каждой из строк объект класса `UnpackTool`, содержащий в
-# одном из своих полей стек циклов повторений. Максимальное количество элементов этого стека зависит
-# от исходных данных, но в среднем его можно оценить примерно как `O(log min(|sᵢ|))`, поскольку чем
-# длиннее строка, тем больше вложенных циклов повторений символов она теоретически может включать, но
-# при этом процедура распаковки будет ограничена минимальной длиной строки. Помимо этого, в методе
-# `CommonPrefixTool.get_longest_common_prefix()` из символов создается строка, содержащая наибольший
-# общий префикс длиной порядка `O(min(|sᵢ|))`. Таким образом, пространственная сложность алгоритма
-# составляет `O(min(|sᵢ|) + n · log min(|sᵢ|))`.
+# В ходе своей работы функция `get_longest_common_prefix()` сначала сохраняет в виде списка символов
+# найденный наибольший общий префикс между первой и второй строкой, после чего она последовательно
+# распаковывает оставшиеся строки, обновляя значение указателя на конец наибольшего общего префикса.
+# Поэтому пространственную сложность алгоритма можно оценить как `O(min(k₁|s₁|, k₂|s₂|))`.
 
 from __future__ import annotations
 
 import dataclasses
+import itertools
 import sys
-from collections.abc import Iterable, Iterator, Sequence, Mapping, Callable
+from collections.abc import Iterable, Iterator, Mapping, Callable
 
 
-def get_longest_common_prefix(strings: Sequence[str]) -> str:
-    common_prefix_tool = CommonPrefixTool(strings)
-    return common_prefix_tool.get_longest_common_prefix()
+def get_longest_common_prefix(strings: Iterable[str]) -> str:
+    strings_iter = iter(strings)
 
+    try:
+        packed_first_str = next(strings_iter)
+    except StopIteration:
+        return ''
 
-class CommonPrefixTool:
-    strings: Sequence[str]
+    first_chars_iter = unpack_chars(packed_first_str)
+    first_chars_list: list[str] = []
+    end_pos: int | None = None
 
-    __slots__ = (
-        'strings',
-    )
-
-    def __init__(self, strings: Sequence[str]) -> None:
-        self.strings = strings
-
-    def get_longest_common_prefix(self) -> str:
-        return ''.join(self._get_longest_common_prefix_chars())
-
-    def _get_longest_common_prefix_chars(self) -> Iterable[str]:
-        strings = self.strings
-        strings_count = len(strings)
-
-        if not strings_count:
-            return
-
-        char_iter_list = [unpack_chars(s) for s in strings]
-        first_char_iter = char_iter_list[0]
+    for packed_other_str in strings_iter:
+        other_chars_iter = unpack_chars(packed_other_str)
+        pos = 0
 
         while True:
-            try:
-                char = next(first_char_iter)
-            except StopIteration:
-                return
-
-            for i in range(1, strings_count):
+            if end_pos is None:
                 try:
-                    other_char = next(char_iter_list[i])
+                    char = next(first_chars_iter)
                 except StopIteration:
-                    return
+                    break
 
-                if char != other_char:
-                    return
+                first_chars_list.append(char)
 
-            yield char
+            else:
+                if pos == end_pos:
+                    break
+
+                char = first_chars_list[pos]
+
+            try:
+                other_char = next(other_chars_iter)
+            except StopIteration:
+                break
+
+            if char != other_char:
+                break
+
+            pos += 1
+
+        end_pos = pos
+
+        if not end_pos:
+            break
+
+    chars_iter: Iterable[str] = (
+        first_chars_iter if end_pos is None else itertools.islice(first_chars_list, end_pos)
+    )
+
+    return ''.join(chars_iter)
 
 
 def unpack_chars(s: str) -> Iterator[str]:
@@ -204,7 +205,7 @@ class UnpackTool:
         self.token_parsers = self._get_token_parsers()
 
     def _get_token_parsers(self) -> Mapping[str, TokenParser]:
-        token_parsers = {
+        token_parsers: dict[str, TokenParser] = {
             '[': self._parse_repetition_start,
             ']': self._parse_repetition_end,
         }
@@ -286,7 +287,7 @@ def read_strings(count: int) -> Iterable[str]:
 
 def main() -> None:
     strings_count = int(input().strip())
-    strings = list(read_strings(strings_count))
+    strings = read_strings(strings_count)
 
     print(get_longest_common_prefix(strings))
 
