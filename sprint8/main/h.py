@@ -5,17 +5,17 @@ from collections.abc import Iterable, Sequence
 
 
 def replace(s: str, pattern: str, replacement: str) -> Iterable[str]:
-    s_len = len(s)
-    pattern_len = len(pattern)
+    s_length = len(s)
+    pattern_length = len(pattern)
 
-    if s_len == 0 or pattern_len == 0 or s_len < pattern_len:
+    if s_length == 0 or pattern_length == 0 or s_length < pattern_length:
         yield s
         return
 
-    pi_array = _calculate_prefix_func(pattern)
+    pi_array = _calculate_prefix_func_array(pattern)
     i = j = s_pos = 0
 
-    while i < s_len:
+    while i < s_length:
         if s[i] != pattern[j]:
             if j == 0:
                 i += 1
@@ -27,10 +27,10 @@ def replace(s: str, pattern: str, replacement: str) -> Iterable[str]:
         i += 1
         j += 1
 
-        if j < pattern_len:
+        if j < pattern_length:
             continue
 
-        s_part = s[s_pos:i - pattern_len]
+        s_part = s[s_pos:i - pattern_length]
 
         if s_part:
             yield s_part
@@ -47,12 +47,12 @@ def replace(s: str, pattern: str, replacement: str) -> Iterable[str]:
         yield s_part
 
 
-def _calculate_prefix_func(s: str) -> Sequence[int]:
-    s_len = len(s)
-    pi_array = [0] * s_len
+def _calculate_prefix_func_array(s: str) -> Sequence[int]:
+    s_length = len(s)
+    pi_array = [0] * s_length
     pi_value = 0
 
-    for i in range(1, s_len):
+    for i in range(1, s_length):
         current_char = s[i]
 
         while True:
