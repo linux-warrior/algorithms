@@ -15,7 +15,7 @@ def get_max_profit(prices: Iterable[int]) -> int:
 
     result = 0
 
-    for price in prices:
+    for price in prices_iter:
         if price > previous_price:
             result += price - previous_price
 

@@ -14,7 +14,7 @@ def fibonacci_mod_dynamic(n: int, *, module: int) -> int:
     for i in range(2, n + 1):
         elements[i] = (elements[i - 1] + elements[i - 2]) % module
 
-    return elements[n]
+    return elements[-1]
 
 
 def main() -> None:

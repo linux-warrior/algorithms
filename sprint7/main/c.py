@@ -13,7 +13,7 @@ def get_max_total_price(sand_heaps: Iterable[SandHeap], *, capacity: int) -> int
     result = 0
 
     for sand_price, heap_weight in sand_heaps_list:
-        if capacity < 0:
+        if capacity <= 0:
             break
 
         sand_weight = heap_weight if heap_weight < capacity else capacity
