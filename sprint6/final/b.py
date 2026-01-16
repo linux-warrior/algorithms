@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25070/run-report/148679431/
+# https://contest.yandex.ru/contest/25070/run-report/155283297/
 #
 # -- Принцип работы --
 #
@@ -67,7 +67,7 @@ TILE_WATER = '.'
 TILE_LAND = '#'
 
 
-@dataclasses.dataclass(kw_only=True)
+@dataclasses.dataclass(kw_only=True, slots=True)
 class FindIslandsResult:
     count: int = 0
     max_size: int = 0
@@ -77,6 +77,12 @@ class Grid:
     tiles: list[TilesRow]
     width: int
     height: int
+
+    __slots__ = (
+        'tiles',
+        'width',
+        'height',
+    )
 
     def __init__(self, *, tiles: Iterable[TilesRow]) -> None:
         self.tiles = list(tiles)
@@ -126,6 +132,18 @@ class IslandsParser:
     count: int
     max_size: int
     size: int
+
+    __slots__ = (
+        'grid',
+        'width',
+        'height',
+        'tiles',
+        'positions_state',
+        'positions_queue',
+        'count',
+        'max_size',
+        'size',
+    )
 
     def __init__(self, grid: Grid) -> None:
         self.grid = grid

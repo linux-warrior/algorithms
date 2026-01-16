@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25070/run-report/149551847/
+# https://contest.yandex.ru/contest/25070/run-report/155280659/
 #
 # -- Принцип работы --
 #
@@ -54,7 +54,10 @@ class Edge:
     vertices: tuple[int, int]
     weight: int
 
-    __slots__ = ('vertices', 'weight')
+    __slots__ = (
+        'vertices',
+        'weight',
+    )
 
     def __init__(self, vertices: Iterable[int], *, weight: int) -> None:
         vertices_list = list(itertools.islice(vertices, 2))
@@ -94,7 +97,10 @@ class AdjacencyList:
     vertices: list[int]
     weights: list[int]
 
-    __slots__ = ('vertices', 'weights')
+    __slots__ = (
+        'vertices',
+        'weights',
+    )
 
     def __init__(self) -> None:
         self.vertices = []
@@ -114,6 +120,11 @@ class AdjacencyList:
 class Graph:
     is_directed: bool
     adjacency_lists: list[AdjacencyList]
+
+    __slots = (
+        'is_directed',
+        'adjacency_lists',
+    )
 
     def __init__(self, *, vertices_count: int = 0, is_directed: bool = True) -> None:
         self.is_directed = is_directed
@@ -166,6 +177,11 @@ class VerticesState:
     visited: list[bool]
     visited_count: int
 
+    __slots__ = (
+        'visited',
+        'visited_count',
+    )
+
     def __init__(self, *, vertices_count: int = 0) -> None:
         self.visited = [False] * vertices_count
         self.visited_count = 0
@@ -186,6 +202,10 @@ type VerticesQueueItem = tuple[int, int]
 
 class VerticesQueue:
     items: list[VerticesQueueItem]
+
+    __slots__ = (
+        'items',
+    )
 
     def __init__(self) -> None:
         self.items = []
@@ -215,6 +235,13 @@ class MaxSpanningTreeTool:
     state: VerticesState
     queue: VerticesQueue
     weight: int
+
+    __slots__ = (
+        'graph',
+        'state',
+        'queue',
+        'weight',
+    )
 
     def __init__(self, graph: Graph) -> None:
         self.graph = graph

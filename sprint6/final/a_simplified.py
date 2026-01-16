@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25070/run-report/149585213/
+# https://contest.yandex.ru/contest/25070/run-report/155281258/
 #
 # -- Принцип работы --
 #
@@ -55,7 +55,9 @@ type EdgeVertex = tuple[int, int]
 class AdjacencyList:
     edge_vertices: list[EdgeVertex]
 
-    __slots__ = ('edge_vertices',)
+    __slots__ = (
+        'edge_vertices',
+    )
 
     def __init__(self) -> None:
         self.edge_vertices = []
@@ -72,6 +74,10 @@ class AdjacencyList:
 
 class Graph:
     adjacency_lists: list[AdjacencyList]
+
+    __slots__ = (
+        'adjacency_lists',
+    )
 
     def __init__(self, *, vertices_count: int = 0) -> None:
         self.adjacency_lists = [AdjacencyList() for _i in range(vertices_count)]
@@ -124,6 +130,11 @@ class VerticesState:
     visited: list[bool]
     visited_count: int
 
+    __slots__ = (
+        'visited',
+        'visited_count',
+    )
+
     def __init__(self, *, vertices_count: int = 0) -> None:
         self.visited = [False] * vertices_count
         self.visited_count = 0
@@ -145,6 +156,10 @@ type VerticesQueueItem = tuple[int, int]
 class VerticesQueue:
     items: list[VerticesQueueItem]
 
+    __slots__ = (
+        'items',
+    )
+
     def __init__(self) -> None:
         self.items = []
 
@@ -164,6 +179,12 @@ class MaxSpanningTreeTool:
     graph: Graph
     state: VerticesState
     queue: VerticesQueue
+
+    __slots__ = (
+        'graph',
+        'state',
+        'queue',
+    )
 
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
