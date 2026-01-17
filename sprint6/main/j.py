@@ -158,6 +158,7 @@ class DFS:
     def run(self, *, visitor: DFSVisitor) -> None:
         vertices_count = len(self.graph)
         self.state = VerticesState(vertices_count=vertices_count)
+        self.stack = VerticesStack()
 
         for start_vertex in range(vertices_count):
             if not self.state.is_visited(start_vertex):
@@ -165,8 +166,6 @@ class DFS:
 
     def _handle_component(self, start_vertex: int, *, visitor: DFSVisitor) -> None:
         visitor.start_handle_component()
-
-        self.stack = VerticesStack()
         self.stack.push(start_vertex)
 
         while self.stack:
@@ -182,7 +181,6 @@ class DFS:
 
     def _visit_vertex(self, vertex: int, *, visitor: DFSVisitor) -> None:
         visitor.start_handle_vertex(vertex)
-
         self.state.visit(vertex)
         self.stack.push(vertex)
 
@@ -192,7 +190,6 @@ class DFS:
 
     def _process_vertex(self, vertex: int, *, visitor: DFSVisitor) -> None:
         self.state.process(vertex)
-
         visitor.end_handle_vertex(vertex)
 
 
