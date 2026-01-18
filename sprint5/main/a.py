@@ -17,13 +17,13 @@ def solution(root: Node) -> int:
 
 
 def get_max_value(node: Node) -> int:
-    candidates: list[int] = [node.value]
+    candidates = [node.value]
 
-    if node.left is not None:
-        candidates.append(solution(node.left))
+    for child_node in (node.left, node.right):
+        if child_node is None:
+            continue
 
-    if node.right is not None:
-        candidates.append(solution(node.right))
+        candidates.append(get_max_value(child_node))
 
     return max(candidates)
 

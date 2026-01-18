@@ -35,11 +35,11 @@ def get_node_balance(node: Node | None) -> NodeBalance:
     left_balance = get_node_balance(node.left)
     right_balance = get_node_balance(node.right)
 
-    is_balanced = all([
-        left_balance.is_balanced,
-        right_balance.is_balanced,
-        abs(left_balance.height - right_balance.height) <= 1,
-    ])
+    is_balanced = (
+            left_balance.is_balanced and
+            right_balance.is_balanced and
+            abs(left_balance.height - right_balance.height) <= 1
+    )
     height = max(left_balance.height, right_balance.height) + 1
 
     return NodeBalance(

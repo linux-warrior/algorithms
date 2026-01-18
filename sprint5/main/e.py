@@ -20,12 +20,12 @@ def is_bst(node: Node | None, *, min_value: int | None = None, max_value: int | 
     if node is None:
         return True
 
-    return all([
-        min_value is None or min_value < node.value,
-        max_value is None or node.value < max_value,
-        is_bst(node.left, min_value=min_value, max_value=node.value),
-        is_bst(node.right, min_value=node.value, max_value=max_value),
-    ])
+    return (
+            (min_value is None or min_value < node.value) and
+            (max_value is None or node.value < max_value) and
+            is_bst(node.left, min_value=min_value, max_value=node.value) and
+            is_bst(node.right, min_value=node.value, max_value=max_value)
+    )
 
 
 def test() -> None:

@@ -23,11 +23,11 @@ def are_equal(first: Node | None, second: Node | None) -> bool:
     if first is None or second is None:
         return False
 
-    return all([
-        first.value == second.value,
-        are_equal(first.left, second.left),
-        are_equal(first.right, second.right),
-    ])
+    return (
+            first.value == second.value and
+            are_equal(first.left, second.left) and
+            are_equal(first.right, second.right)
+    )
 
 
 def test() -> None:
