@@ -35,15 +35,16 @@ class BST:
         return self.root
 
     def split(self, k: int) -> Self:
-        left_part, right_part = (
-            self._split_node(self.root, k) if self.root is not None else (None, None)
-        )
+        left_part, right_part = self._split_node(self.root, k)
         self.root = left_part
 
         return self.__class__(right_part)
 
-    def _split_node(self, node: Node, k: int) -> tuple[Node | None, Node | None]:
-        if k <= 0:
+    def _split_node(self, node: Node | None, k: int) -> tuple[Node | None, Node | None]:
+        if node is None:
+            return None, None
+
+        elif k <= 0:
             return None, node
 
         elif k >= node.size:
@@ -67,7 +68,7 @@ class BST:
 
             return node, right_child
 
-        if k < left_child_size and left_child is not None:
+        elif k < left_child_size:
             left_part, right_part = self._split_node(left_child, k)
             node.left = right_part
             right_part_size = right_part.size if right_part else 0
@@ -75,15 +76,13 @@ class BST:
 
             return left_part, node
 
-        elif k > left_child_size + 1 and right_child is not None:
+        else:
             left_part, right_part = self._split_node(right_child, k - left_child_size - 1)
             node.right = left_part
             left_part_size = left_part.size if left_part else 0
             node.size += left_part_size - right_child_size
 
             return node, right_part
-
-        return None, None
 
 
 def test() -> None:
