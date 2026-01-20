@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/23815/run-report/140800383/
+# https://contest.yandex.ru/contest/23815/run-report/155579456/
 #
 # -- Принцип работы --
 #
@@ -48,8 +48,8 @@ class Comparable(Protocol):
 
 
 def quicksort[T: Comparable](array: MutableSequence[T]) -> None:
-    quicksort_helper = QuicksortHelper(array)
-    quicksort_helper.sort(left=0, right=len(array) - 1)
+    quicksort_helper = QuicksortHelper[T](array)
+    quicksort_helper.sort()
 
 
 class QuicksortHelper[T: Comparable]:
@@ -58,7 +58,10 @@ class QuicksortHelper[T: Comparable]:
     def __init__(self, array: MutableSequence[T]) -> None:
         self.array = array
 
-    def sort(self, *, left: int, right: int) -> None:
+    def sort(self) -> None:
+        self._sort(left=0, right=len(self.array) - 1)
+
+    def _sort(self, *, left: int, right: int) -> None:
         if right <= left:
             return
 
@@ -84,8 +87,8 @@ class QuicksortHelper[T: Comparable]:
 
             self.array[i], self.array[j] = self.array[j], self.array[i]
 
-        self.sort(left=left, right=j)
-        self.sort(left=j + 1, right=right)
+        self._sort(left=left, right=j)
+        self._sort(left=j + 1, right=right)
 
     def _get_pivot(self, *, left: int, right: int) -> T:
         return self.array[(left + right) // 2]
@@ -109,7 +112,7 @@ class Participant(Comparable):
 
     @classmethod
     def read(cls) -> Self:
-        fields_list = input().strip().split()
+        fields_list = input().split()[:3]
 
         return cls(
             name=fields_list[0],

@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/23815/run-report/140739386/
+# https://contest.yandex.ru/contest/23815/run-report/155579275/
 #
 # -- Принцип работы --
 #
@@ -47,19 +47,20 @@ type CompareFunc[T] = Callable[[T, T], int]
 
 
 def quicksort[T](array: MutableSequence[T], *, cmp_func: CompareFunc[T]) -> None:
-    quicksort_helper = QuicksortHelper(array, cmp_func=cmp_func)
-    quicksort_helper.sort(left=0, right=len(array) - 1)
+    quicksort_helper = QuicksortHelper[T](array)
+    quicksort_helper.sort(cmp_func=cmp_func)
 
 
 class QuicksortHelper[T]:
     array: MutableSequence[T]
-    cmp_func: CompareFunc[T]
 
-    def __init__(self, array: MutableSequence[T], *, cmp_func: CompareFunc[T]) -> None:
+    def __init__(self, array: MutableSequence[T]) -> None:
         self.array = array
-        self.cmp_func = cmp_func
 
-    def sort(self, *, left: int, right: int) -> None:
+    def sort(self, *, cmp_func: CompareFunc[T]) -> None:
+        self._sort(left=0, right=len(self.array) - 1, cmp_func=cmp_func)
+
+    def _sort(self, *, left: int, right: int, cmp_func: CompareFunc[T]) -> None:
         if right <= left:
             return
 
@@ -71,13 +72,13 @@ class QuicksortHelper[T]:
             while True:
                 i += 1
 
-                if self.cmp_func(self.array[i], pivot) >= 0:
+                if cmp_func(self.array[i], pivot) >= 0:
                     break
 
             while True:
                 j -= 1
 
-                if self.cmp_func(self.array[j], pivot) <= 0:
+                if cmp_func(self.array[j], pivot) <= 0:
                     break
 
             if i >= j:
@@ -85,8 +86,8 @@ class QuicksortHelper[T]:
 
             self.array[i], self.array[j] = self.array[j], self.array[i]
 
-        self.sort(left=left, right=j)
-        self.sort(left=j + 1, right=right)
+        self._sort(left=left, right=j, cmp_func=cmp_func)
+        self._sort(left=j + 1, right=right, cmp_func=cmp_func)
 
     def _get_pivot(self, *, left: int, right: int) -> T:
         return self.array[(left + right) // 2]
@@ -109,7 +110,7 @@ class Participant:
 
     @classmethod
     def read(cls) -> Self:
-        fields_list = input().strip().split()
+        fields_list = input().split()[:3]
 
         return cls(
             name=fields_list[0],
