@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/24414/run-report/141654688/
+# https://contest.yandex.ru/contest/24414/run-report/155564179/
 #
 # -- Принцип работы --
 #
@@ -37,6 +37,7 @@
 from __future__ import annotations
 
 import heapq
+import operator
 import sys
 from collections.abc import Iterable
 
@@ -45,15 +46,18 @@ class SearchIndex:
     index: dict[str, dict[int, int]]
     next_document_id: int
 
-    def __init__(self) -> None:
+    def __init__(self, documents: Iterable[str] | None = None) -> None:
         self.index = {}
         self.next_document_id = 1
 
-    def add_documents(self, *, documents: Iterable[str]) -> None:
-        for document in documents:
-            self.add_document(document=document)
+        if documents is not None:
+            self.add_documents(documents)
 
-    def add_document(self, *, document: str) -> None:
+    def add_documents(self, documents: Iterable[str]) -> None:
+        for document in documents:
+            self.add_document(document)
+
+    def add_document(self, document: str) -> None:
         document_id = self.next_document_id
         self.next_document_id += 1
 
@@ -62,11 +66,15 @@ class SearchIndex:
             word_occurrences.setdefault(document_id, 0)
             word_occurrences[document_id] += 1
 
-    def search(self, *, query: str, count: int = 5) -> Iterable[int]:
-        words_set = set(query.split())
+    def search(self, query: str, *, count: int = 5) -> Iterable[int]:
         search_results: dict[int, int] = {}
+        words_set = set[str]()
 
-        for word in words_set:
+        for word in query.split():
+            if word in words_set:
+                continue
+
+            words_set.add(word)
             word_occurrences = self.index.get(word)
 
             if word_occurrences is None:
@@ -82,7 +90,7 @@ class SearchIndex:
             key=lambda item: (item[1], -item[0]),
         )
 
-        return [item[0] for item in most_relevant_results]
+        return map(operator.itemgetter(0), most_relevant_results)
 
 
 def read_strings(count: int) -> Iterable[str]:
@@ -94,15 +102,12 @@ def main() -> None:
     documents_count = int(input().strip())
     documents = list(read_strings(documents_count))
     queries_count = int(input().strip())
-    queries = list(read_strings(queries_count))
+    queries = read_strings(queries_count)
 
-    search_index = SearchIndex()
-
-    for document in documents:
-        search_index.add_document(document=document)
+    search_index = SearchIndex(documents)
 
     for query in queries:
-        documents_ids = search_index.search(query=query)
+        documents_ids = search_index.search(query)
         print(*documents_ids)
 
 
