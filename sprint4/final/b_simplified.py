@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/24414/run-report/141655588/
+# https://contest.yandex.ru/contest/24414/run-report/155573748/
 #
 # -- Принцип работы --
 #
@@ -171,7 +171,7 @@ def main() -> None:
     commands_count = int(input().strip())
 
     hash_table = HashTable(capacity=10000)
-    commands_executor = HashTableCommandsExecutor(hash_table=hash_table)
+    commands_executor = HashTableCommandsExecutor(hash_table)
 
     for i in range(commands_count):
         command_str = input().strip()

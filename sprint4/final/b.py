@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/24414/run-report/141655409/
+# https://contest.yandex.ru/contest/24414/run-report/155573504/
 #
 # -- Принцип работы --
 #
@@ -85,7 +85,7 @@ class ListBucketContainer(AbstractBucketContainer[ListBucketNode]):
 
 
 class Bucket:
-    container: AbstractBucketContainer
+    container: AbstractBucketContainer[ListBucketNode]
 
     def __init__(self) -> None:
         self.container = ListBucketContainer()
@@ -192,7 +192,7 @@ def main() -> None:
     commands_count = int(input().strip())
 
     hash_table = HashTable(capacity=10000)
-    commands_executor = HashTableCommandsExecutor(hash_table=hash_table)
+    commands_executor = HashTableCommandsExecutor(hash_table)
 
     for i in range(commands_count):
         command_str = input().strip()
