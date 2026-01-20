@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/23815/run-report/140654101/
+# https://contest.yandex.ru/contest/23815/run-report/155574509/
 #
 # -- Принцип работы --
 #
@@ -51,10 +51,10 @@ def broken_search(nums: Sequence[int], target: int) -> int:
         if nums[middle] == target:
             return middle
 
-        if any([
-            nums[left] <= target < nums[middle],
-            nums[left] > nums[middle] and not nums[middle] < target <= nums[right],
-        ]):
+        if (
+                (nums[left] <= target < nums[middle]) or
+                (nums[left] > nums[middle] and not nums[middle] < target <= nums[right])
+        ):
             right = middle - 1
         else:
             left = middle + 1
