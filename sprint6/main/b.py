@@ -8,7 +8,7 @@ from typing import Self
 class Edge:
     vertices: tuple[int, int]
 
-    def __init__(self, *, vertices: Iterable[int]) -> None:
+    def __init__(self, vertices: Iterable[int]) -> None:
         vertices_list = list(itertools.islice(vertices, 2))
         self.vertices = vertices_list[0], vertices_list[1]
 
@@ -18,7 +18,7 @@ class Edge:
     @classmethod
     def read(cls) -> Self:
         vertices_iter = map(lambda vertex_str: int(vertex_str) - 1, input().split())
-        return cls(vertices=vertices_iter)
+        return cls(vertices_iter)
 
     @classmethod
     def read_list(cls, count: int) -> Iterable[Self]:
@@ -33,15 +33,19 @@ class AdjacencyMatrix:
         self.rows = []
         self.create_vertices(vertices_count)
 
+    def __len__(self) -> int:
+        return len(self.rows)
+
     def __iter__(self) -> Iterator[AdjacencyRow]:
         yield from self.rows
 
     def create_vertices(self, count: int) -> None:
-        for row in self.rows:
+        vertices_count = len(self) + count
+
+        for row in self:
             row.create_vertices(count)
 
-        for i in range(count):
-            self.rows.append(AdjacencyRow(vertices_count=count))
+        self.rows.extend(AdjacencyRow(vertices_count=vertices_count) for _i in range(count))
 
     def add_edge(self, edge: Edge) -> None:
         adjacency_row = self.rows[edge[0]]
@@ -58,8 +62,8 @@ class AdjacencyRow:
     def __iter__(self) -> Iterator[bool]:
         yield from self.vertices
 
-    def as_list(self) -> Iterator[int]:
-        yield from map(int, self)
+    def as_list(self) -> Iterable[int]:
+        return map(int, self)
 
     def create_vertices(self, count: int) -> None:
         self.vertices.extend([False] * count)
