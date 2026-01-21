@@ -32,16 +32,6 @@ class Matrix:
 
         self.columns_count = columns_count or 0
 
-    @classmethod
-    def read(cls, rows_count: int, columns_count: int) -> Self:
-        return cls(cls._read_elements(rows_count, columns_count))
-
-    @classmethod
-    def _read_elements(cls, rows_count: int, columns_count: int) -> Iterable[Iterable[int]]:
-        for row_num in range(rows_count):
-            elements_row = map(int, sys.stdin.readline().split())
-            yield itertools.islice(elements_row, columns_count)
-
     def __str__(self) -> str:
         result: list[str] = []
 
@@ -58,6 +48,16 @@ class Matrix:
                 elements_list[column_num][row_num] = element
 
         return self.__class__(elements_list)
+
+    @classmethod
+    def read(cls, rows_count: int, columns_count: int) -> Self:
+        return cls(cls._read_elements(rows_count, columns_count))
+
+    @classmethod
+    def _read_elements(cls, rows_count: int, columns_count: int) -> Iterable[Iterable[int]]:
+        for row_num in range(rows_count):
+            elements_row = map(int, sys.stdin.readline().split())
+            yield itertools.islice(elements_row, columns_count)
 
 
 def read_int() -> int:
