@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/25070/run-report/155280659/
+# https://contest.yandex.ru/contest/25070/run-report/155625334/
 #
 # -- Принцип работы --
 #
@@ -110,7 +110,7 @@ class AdjacencyList:
         return len(self.vertices)
 
     def __iter__(self) -> Iterator[EdgeVertex]:
-        yield from zip(self.vertices, self.weights)
+        return zip(self.vertices, self.weights)
 
     def add_vertex(self, vertex: int, *, weight: int) -> None:
         self.vertices.append(vertex)
