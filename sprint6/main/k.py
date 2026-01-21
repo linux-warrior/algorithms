@@ -29,7 +29,7 @@ class Edge:
 
     @classmethod
     def read(cls) -> Self:
-        values_list = list(map(int, input().split()))
+        values_list = list(map(int, input().split()[:3]))
         vertices = map(lambda vertex: vertex - 1, values_list[:2])
         weight = values_list[2]
 
@@ -39,6 +39,9 @@ class Edge:
     def read_list(cls, count: int) -> Iterable[Self]:
         for i in range(count):
             yield cls.read()
+
+
+type EdgeVertex = tuple[int, int]
 
 
 class AdjacencyList:
@@ -52,8 +55,8 @@ class AdjacencyList:
     def __len__(self) -> int:
         return len(self.vertices)
 
-    def __iter__(self) -> Iterator[tuple[int, int]]:
-        yield from zip(self.vertices, self.weights)
+    def __iter__(self) -> Iterator[EdgeVertex]:
+        return zip(self.vertices, self.weights)
 
     def add_vertex(self, vertex: int, *, weight: int) -> None:
         self.vertices.append(vertex)
@@ -79,8 +82,7 @@ class Graph:
         return self.adjacency_lists[vertex]
 
     def create_vertices(self, count: int) -> None:
-        for i in range(count):
-            self.adjacency_lists.append(AdjacencyList())
+        self.adjacency_lists.extend(AdjacencyList() for _i in range(count))
 
     def add_edge(self, edge: Edge) -> None:
         self._add_edge(edge)

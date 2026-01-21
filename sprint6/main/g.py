@@ -9,7 +9,7 @@ from typing import Self
 class Edge:
     vertices: tuple[int, int]
 
-    def __init__(self, *, vertices: Iterable[int]) -> None:
+    def __init__(self, vertices: Iterable[int]) -> None:
         vertices_list = list(itertools.islice(vertices, 2))
         self.vertices = vertices_list[0], vertices_list[1]
 
@@ -20,12 +20,12 @@ class Edge:
         return self.vertices[index]
 
     def __neg__(self) -> Self:
-        return self.__class__(vertices=[self[1], self[0]])
+        return self.__class__([self[1], self[0]])
 
     @classmethod
     def read(cls) -> Self:
         vertices_iter = map(lambda vertex_str: int(vertex_str) - 1, input().split())
-        return cls(vertices=vertices_iter)
+        return cls(vertices_iter)
 
     @classmethod
     def read_list(cls, count: int) -> Iterable[Self]:
@@ -44,9 +44,6 @@ class AdjacencyList:
 
     def __iter__(self) -> Iterator[int]:
         yield from self.vertices
-
-    def as_list(self) -> Iterator[int]:
-        yield from map(lambda vertex: vertex + 1, self)
 
     def add_vertex(self, vertex: int) -> None:
         self.vertices.append(vertex)
@@ -71,8 +68,7 @@ class Graph:
         return self.adjacency_lists[vertex]
 
     def create_vertices(self, count: int) -> None:
-        for i in range(count):
-            self.adjacency_lists.append(AdjacencyList())
+        self.adjacency_lists.extend(AdjacencyList() for _i in range(count))
 
     def add_edge(self, edge: Edge) -> None:
         self._add_edge(edge)
