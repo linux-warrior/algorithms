@@ -12,22 +12,44 @@ if LOCAL:
 
 
 def solution(node: Node, idx: int) -> Node | None:
-    current_node: Node | None = node
-    previous_node: Node | None = None
-    i = 0
+    return remove_node(node, idx)
 
-    while current_node is not None:
-        if i == idx:
-            if previous_node is None:
-                return current_node.next_item
-            else:
-                previous_node.next_item = current_node.next_item
 
-        previous_node = current_node
-        current_node = current_node.next_item
-        i += 1
+def remove_node(node: Node, index: int) -> Node | None:
+    linked_list = LinkedList(node)
+    linked_list.remove(index)
+    return linked_list.get_head()
 
-    return node
+
+class LinkedList:
+    head: Node | None
+
+    def __init__(self, head: Node | None = None) -> None:
+        self.head = head
+
+    def get_head(self) -> Node | None:
+        return self.head
+
+    def remove(self, index: int) -> None:
+        if index < 0:
+            return
+
+        node: Node | None = self.head
+        previous_node: Node | None = None
+        i = 0
+
+        while i < index and node is not None:
+            previous_node = node
+            node = node.next_item
+            i += 1
+
+        if node is None:
+            return
+
+        if previous_node is None:
+            self.head = node.next_item
+        else:
+            previous_node.next_item = node.next_item
 
 
 def test() -> None:

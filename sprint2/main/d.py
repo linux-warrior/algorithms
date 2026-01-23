@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 
 LOCAL = os.environ.get('REMOTE_JUDGE', 'false') != 'true'
 
@@ -12,17 +13,37 @@ if LOCAL:
 
 
 def solution(node: Node, elem: str) -> int:
-    current_node: Node | None = node
-    i = 0
+    return find_node(node, elem)
 
-    while current_node is not None:
-        if current_node.value == elem:
-            return i
 
-        current_node = current_node.next_item
-        i += 1
+def find_node(node: Node, value: str) -> int:
+    linked_list = LinkedList(node)
+    return linked_list.find(value)
 
-    return -1
+
+class LinkedList:
+    head: Node
+
+    def __init__(self, head: Node) -> None:
+        self.head = head
+
+    def __iter__(self) -> Iterator[Node]:
+        node: Node | None = self.head
+
+        while node is not None:
+            yield node
+            node = node.next_item
+
+    def iter_values(self) -> Iterator[str]:
+        for node in self:
+            yield node.value
+
+    def find(self, value: str) -> int:
+        for i, node_value in enumerate(self.iter_values()):
+            if node_value == value:
+                return i
+
+        return -1
 
 
 def test() -> None:

@@ -16,19 +16,40 @@ if LOCAL:
 
 
 def solution(node: DoubleConnectedNode) -> DoubleConnectedNode:
-    reversed_node = node
+    return reverse_linked_list(node)
 
-    while True:
-        next_reversed_node = reversed_node.prev
-        previous_reversed_node = reversed_node.next
 
-        reversed_node.next = next_reversed_node
-        reversed_node.prev = previous_reversed_node
+def reverse_linked_list(node: DoubleConnectedNode) -> DoubleConnectedNode:
+    linked_list = LinkedList(node)
+    linked_list.reverse()
+    return linked_list.get_head()
 
-        if previous_reversed_node is None:
-            return reversed_node
 
-        reversed_node = previous_reversed_node
+class LinkedList:
+    head: DoubleConnectedNode
+
+    def __init__(self, head: DoubleConnectedNode) -> None:
+        self.head = head
+
+    def get_head(self) -> DoubleConnectedNode:
+        return self.head
+
+    def reverse(self) -> None:
+        reversed_node = self.head
+
+        while True:
+            next_reversed_node = reversed_node.prev
+            previous_reversed_node = reversed_node.next
+
+            reversed_node.next = next_reversed_node
+            reversed_node.prev = previous_reversed_node
+
+            if previous_reversed_node is None:
+                break
+
+            reversed_node = previous_reversed_node
+
+        self.head = reversed_node
 
 
 def test() -> None:
