@@ -40,7 +40,7 @@ class NamesTrieNode:
         yield from self.children.values()
 
     def __reversed__(self) -> Iterator[NamesTrieNode]:
-        yield from reversed(self.children.values())
+        return reversed(self.children.values())
 
     def iter_subtree(self) -> Iterator[NamesTrieNode]:
         nodes_stack: list[NamesTrieNode] = [self]
