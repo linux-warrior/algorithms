@@ -42,7 +42,7 @@ def read_int() -> int:
 
 def read_int_array(length: int) -> Sequence[int]:
     return list(itertools.islice(
-        map(int, sys.stdin.readline().strip().split()),
+        map(int, sys.stdin.readline().split()),
         length,
     ))
 
@@ -52,8 +52,7 @@ def main() -> None:
     x = read_int_array(x_len)
     k = read_int()
 
-    result = get_sum(x, k)
-    print(' '.join(map(str, result)))
+    print(*get_sum(x, k))
 
 
 if __name__ == '__main__':

@@ -1,37 +1,35 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from collections.abc import Iterable
 
 
-def factorize(value: int) -> Sequence[int]:
+def factorize(value: int) -> Iterable[int]:
     if value < 2:
-        return []
+        return
 
-    result: list[int] = []
     value_sqrt = int(math.sqrt(value))
     i = 2
 
     while True:
         if i > value_sqrt:
             if value > 1:
-                result.append(value)
+                yield value
+
             break
 
         if value % i:
             i += 1
             continue
 
-        result.append(i)
+        yield i
         value //= i
-
-    return result
 
 
 def main() -> None:
     value = int(input().strip())
-    result = factorize(value)
-    print(' '.join(map(str, result)))
+
+    print(*factorize(value))
 
 
 if __name__ == '__main__':
