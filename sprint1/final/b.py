@@ -1,4 +1,4 @@
-# https://contest.yandex.ru/contest/22450/run-report/140237614/
+# https://contest.yandex.ru/contest/22450/run-report/156249691/
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ type GridRow = Iterable[int | None]
 type Grid = Iterable[GridRow]
 
 
-def get_max_score(*,
-                  grid: Grid,
+def get_max_score(grid: Grid,
+                  *,
                   min_digit: int = 1,
                   max_digit: int = 9,
                   max_keys: int,
@@ -23,7 +23,7 @@ def get_max_score(*,
 
     total_max_keys = max_keys * players_count
     max_score = sum(
-        int(0 < digit_count <= total_max_keys)
+        0 < digit_count <= total_max_keys
         for digit_count in digits_counter
     )
 
@@ -55,7 +55,7 @@ def main() -> None:
     max_keys = read_int()
     grid = read_grid(width=4, height=4)
 
-    max_score = get_max_score(grid=grid, max_keys=max_keys)
+    max_score = get_max_score(grid, max_keys=max_keys)
     print(max_score)
 
 
